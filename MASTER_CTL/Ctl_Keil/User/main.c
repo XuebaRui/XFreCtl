@@ -16,9 +16,10 @@
 #define Tab_ATT  0x02
 #define Tab_AGC  0x03
 #define Tab_CF   0x04 
-extern u8 Que_Len ;
-extern u8 **Parse_Que ;
+extern u8 Que_Len ;            
+extern u8 **Parse_Que ;        //测试应该更改为数组缓存     
 extern u8 paser(char *s,char *rtn_cmd ,char *rtn_data);
+extern u8 Spi_RecBuff[10];
 Sys_Para cur_SysPara;
 void SystemClock_Config(void)
 {
@@ -36,16 +37,14 @@ void SystemClock_Config(void)
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);						//锁相环时钟作为系统时钟
 	while(RCC_GetSYSCLKSource()!=0x08);										//确认锁相环为系统时钟
 }
-void IWDG_Configuration(void) //ns 看门口
+void IWDG_Configuration(void) //ns 看门狗
 {
     IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable); 
     IWDG_SetPrescaler(IWDG_Prescaler_256); 
-    IWDG_SetReload(0xFFF); //0xfff*256/40k=26s
+    IWDG_SetReload(0x190); //0x190*256/40k=2.56s 
     IWDG_ReloadCounter();
     IWDG_Enable(); 
 }
-double AGC_BASIC2 = 0;                           //输出为0dbm时ADC的值，AGC要稳定的值
-double AGC_BASIC1 = 0;                           //输出为0dbm时ADC的值，AGC要稳定的值
 int main(void)
 {
 	u8 i = 0;
@@ -120,7 +119,7 @@ int main(void)
 		Display_Asc_String('1',20,24,DisBuffer);
 		delay_ms(50);
 	#endif
-	LowPW_Init(); 															//低电量中断
+	LowPW_Init(); 															//低电量中断 电容不够保持足够的时间
 	#if DeBug
 		sprintf(DisBuffer,"LowPowerDet_Init...");
 		Display_Asc_String('1',20,32,DisBuffer);
@@ -131,11 +130,7 @@ int main(void)
 		sprintf(DisBuffer,"FreInit...");
 		Display_Asc_String('1',20,40,DisBuffer);
 	#endif
-	cur_SysPara = Load_SysPara();               //加载上次关机的参数
-	AGC_BASIC1 = (FLASH_ReadHalfWord(AGCCALVAL1_ADDR) << 16 
-							| FLASH_ReadHalfWord(AGCCALVAL1_ADDR + 2)) / 10000.0 ;     //加载ADC_basic
-	AGC_BASIC2 = (FLASH_ReadHalfWord(AGCCALVAL2_ADDR) << 16 
-							| FLASH_ReadHalfWord(AGCCALVAL2_ADDR + 2)) / 10000.0 ;     //加载ADC_basic
+	//cur_SysPara = Load_SysPara();               //加载上次关机的参数
 	#if DeBug
 		sprintf(DisBuffer,"Load_SysPara...");
 		Display_Asc_String('1',20,48,DisBuffer);

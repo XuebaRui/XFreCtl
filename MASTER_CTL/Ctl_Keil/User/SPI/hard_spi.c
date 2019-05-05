@@ -47,16 +47,15 @@ void Spi1_Init(void) //主模式 全双工8位
 	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
 	SPI_InitStructure.SPI_CRCPolynomial = 7;
 	SPI_Init(SPI1, &SPI_InitStructure);
-	//spi中断
-//	NVIC_InitStructure.NVIC_IRQChannel = SPI1_IRQn;
-//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-//	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//	NVIC_Init(&NVIC_InitStructure);
-//	
-//	SPI_I2S_ITConfig(SPI1,SPI_I2S_IT_RXNE, ENABLE);
-//   SPI_I2S_ClearFlag(SPI1,SPI_I2S_FLAG_RXNE);
-//	 SPI_I2S_ClearFlag(SPI1,SPI_I2S_FLAG_TXE);
+	//spi中断 
+	NVIC_InitStructure.NVIC_IRQChannel = SPI1_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+	SPI_I2S_ITConfig (SPI1,SPI_I2S_IT_RXNE, ENABLE);
+  SPI_I2S_ClearITPendingBit(SPI1,SPI_I2S_IT_RXNE);
+	SPI_I2S_ClearITPendingBit(SPI1,SPI_I2S_IT_TXE);
 	/* Enable SPI1  */
 	SPI_Cmd(SPI1, ENABLE);
 }
@@ -156,6 +155,7 @@ void SPI_Send(u8 fre,u8 ref,u8 rec_data[3])
 ** 帧结构 
 **         头  数据      尾
 */
+u8 Spi_RecBuff[10] = {0};
 void SPI1_IRQHandler(void)
 {
   u8 tmp = 0;

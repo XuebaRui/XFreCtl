@@ -119,8 +119,6 @@ void TIM2_IRQHandler(void) //nms后串口没有新数据则串口接收完成
 **作者  ： 王瑞
 */
 extern Sys_Para cur_SysPara;
-extern double AGC_BASIC2;                           //输出为0dbm时ADC的值，AGC要稳定的值
-extern double AGC_BASIC1;                           //输出为0dbm时ADC的值，AGC要稳定的值
 void PVD_IRQHandler(void)
 {
 

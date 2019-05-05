@@ -84,8 +84,6 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
-            <nStopA1X>0</nStopA1X>
-            <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
@@ -363,8 +361,6 @@
             <uSurpInc>0</uSurpInc>
             <uC99>0</uC99>
             <useXO>0</useXO>
-            <v6Lang>0</v6Lang>
-            <v6LangP>0</v6LangP>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
@@ -623,11 +619,6 @@
               <FilePath>..\..\User\parser.c</FilePath>
             </File>
             <File>
-              <FileName>HMC832.C</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\hmc832\HMC832.C</FilePath>
-            </File>
-            <File>
               <FileName>func.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\func\func.c</FilePath>
@@ -656,11 +647,6 @@
               <FileName>key.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\User\KEY\key.h</FilePath>
-            </File>
-            <File>
-              <FileName>adc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\ADC\adc.c</FilePath>
             </File>
             <File>
               <FileName>hard_spi.c</FileName>
