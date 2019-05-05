@@ -4,6 +4,7 @@
 #include "myflash.h"
 #include "delay.h"
 #include "math.h"
+#include "spi.h"
 
 void LowPW_Init(void)
 {
@@ -27,21 +28,50 @@ void LowPW_Init(void)
 	PWR_PVDLevelConfig(PWR_PVDLevel_2V9); //门限2.9v
 	PWR_PVDCmd(ENABLE);
 }
-
 /*
-**函数名： Load_SysPara
+**函数名： slaver_init
 **参数  ： 无
-**功能  ： 装载 FLASH 里的设置参数 如果没有则 设置为默认缺省状态
+**功能  ： 按照 PARA 的参数设置 两个从机场设备
+**日期	： 2019-02-26
+**作者  ： 王瑞
+*/
+u8 s_ack1 = 0;  //接收中断响应
+u8 s_ack2 = 0;  //接收中断响应
+u8 SlaverDevice_Ctl(Sys_Para para)
+{
+	u8 s_buff[10] = {0};
+	u8 s_cnt = 0;
+	u8 retry = 0;
+	s_buff[0] = 0x5a; 
+	(para.cf+0.0005) * 10000;
+	for(s_cnt = 0 ; s_cnt < 10 ; s_cnt++)
+	{
+		SlaverDevice1_SendByte(s_buff[0]);
+		SlaverDevice2_SendByte(s_buff[0]);
+		while(!(s_ack1&s_ack2)) //等待从机返回数据中断
+		{
+			retry++;
+			if(retry >= 100)
+				return Fail;   //失败
+		}
+		s_ack1 = 0;
+		s_ack2 = 0;
+	}
+	return Success;  //成功
+}
+/*
+**函数名： Sys_ParaInit
+**参数  ： 无
+**功能  ： 初始化
 **日期	： 2019-02-26
 **作者  ： 王瑞
 */
 u8 Sys_ParaInit(void)
 {
 	Sys_Para para;
-	
-	return Success;
+	para = Load_SysPara();
+	return SlaverDevice_init(para);
 }
-
 /*
 **函数名： Load_SysPara
 **参数  ： 无

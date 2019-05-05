@@ -657,6 +657,13 @@
         </Group>
         <Group>
           <GroupName>DOC</GroupName>
+          <Files>
+            <File>
+              <FileName>readme.MD</FileName>
+              <FileType>9</FileType>
+              <FilePath>..\..\Doc\readme.MD</FilePath>
+            </File>
+          </Files>
         </Group>
       </Groups>
     </Target>
