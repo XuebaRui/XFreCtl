@@ -22,30 +22,23 @@ int main(void)
 	volatile double agc_basic = 1.229;
 	int stc = 0;
 	volatile RCC_ClocksTypeDef get_rcc_clock;
-	RCC_GetClocksFreq(&get_rcc_clock);   //??????
+	RCC_GetClocksFreq(&get_rcc_clock);   
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	GPIO_init();
-	TIM4_Init();
-	
-	
-	delay_s(2);
-	
 	HMC832_Init(); //初始化
-	//NFRE_Init(); //4.7G
+	NFRE_Init(); //4.7G
+	
 	while(1)
 	{
-		//HMC832_Init(); //初始化
-		//HMC832_Init(); //初始化
 		delay_ms(10);
 	}
-	//NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	//
 	//IWDG_Configuration();
 	//Spi1_Init(); //主从通信
 	//STC_GPIO_Init();
 	//adc_init();
 	//TIM4_Init();
 	//MGC_CTL(0,0,0);
-	
-
 //  while(1)
 //	{
 //		if(MODE == AGC)

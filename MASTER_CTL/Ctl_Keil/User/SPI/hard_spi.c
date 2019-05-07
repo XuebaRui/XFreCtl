@@ -1,7 +1,6 @@
 #include "hard_spi.h"
 
-extern u8 s_ack1;  //接收中断响应  从机1响应标志
-extern u8 s_ack2;  //接收中断响应  从机2响应标志
+
 /*
 **函数名： Spi1_Init 
 **参数  ： 无
@@ -158,33 +157,3 @@ void Spi2_SendByte(u8 byte)
 	}
 	SPI2->DR = byte;
 }
-
-/* SPI接收 中断
-** 帧结构 
-**         头  数据      尾
-*/
-u8 Spi1_RecBuff[10] = {0};
-void SPI1_IRQHandler(void)
-{
-  u8 tmp = 0;
-	if(SPI_I2S_GetITStatus(SPI1,SPI_I2S_IT_RXNE) != RESET) 
-	{
-		tmp = SPI1->DR;
-		s_ack1 = 1;
-		SPI_I2S_ClearITPendingBit(SPI1,SPI_I2S_IT_RXNE);
-	}
-}
-u8 Spi2_RecBuff[10] = {0};
-void SPI2_IRQHandler(void)
-{
-  u8 tmp = 0;
-	if(SPI_I2S_GetITStatus(SPI2,SPI_I2S_IT_RXNE) != RESET) 
-	{
-		tmp = SPI2->DR;
-		s_ack1 = 1;
-		SPI_I2S_ClearITPendingBit(SPI2,SPI_I2S_IT_RXNE);
-	}
-}
-
-
-

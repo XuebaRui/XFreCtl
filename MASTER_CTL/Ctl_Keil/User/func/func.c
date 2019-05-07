@@ -4,7 +4,7 @@
 #include "myflash.h"
 #include "delay.h"
 #include "math.h"
-#include "spi.h"
+#include "hard_spi.h"
 
 void LowPW_Init(void)
 {
@@ -39,15 +39,24 @@ u8 s_ack1 = 0;  //接收中断响应
 u8 s_ack2 = 0;  //接收中断响应
 u8 SlaverDevice_Ctl(Sys_Para para)
 {
-	u8 s_buff[10] = {0};
+	u8 s_buff[7] = {0};
 	u8 s_cnt = 0;
 	u8 retry = 0;
+	u32 tmp = 0;
 	s_buff[0] = 0x5a; 
-	(para.cf+0.0005) * 10000;
-	for(s_cnt = 0 ; s_cnt < 10 ; s_cnt++)
+	tmp = (u32)(para.cf * 1000 + 0.5);
+	s_buff[1] = ((tmp << 3)>>16) & 0xff;
+	s_buff[2] = ((tmp << 3)>>8) & 0xff;
+	s_buff[3] = ((tmp << 3) | (para.cg >> 3))& 0xff;
+	s_buff[4] = (para.cg << 5)|(para.att);
+	s_buff[5] = (para.bw << 6 | para.agc << 5)& 0xff;
+	s_buff[6] = 0xa5; 
+	SlaverDevice1_SendByte(s_buff[0]);
+	SlaverDevice2_SendByte(s_buff[0]);
+	for(s_cnt = 1 ; s_cnt < 10 ; s_cnt++)
 	{
-		SlaverDevice1_SendByte(s_buff[0]);
-		SlaverDevice2_SendByte(s_buff[0]);
+		SlaverDevice1_SendByte(s_buff[s_cnt]);
+		SlaverDevice2_SendByte(s_buff[s_cnt]);
 		while(!(s_ack1&s_ack2)) //等待从机返回数据中断
 		{
 			retry++;
@@ -58,19 +67,6 @@ u8 SlaverDevice_Ctl(Sys_Para para)
 		s_ack2 = 0;
 	}
 	return Success;  //成功
-}
-/*
-**函数名： Sys_ParaInit
-**参数  ： 无
-**功能  ： 初始化
-**日期	： 2019-02-26
-**作者  ： 王瑞
-*/
-u8 Sys_ParaInit(void)
-{
-	Sys_Para para;
-	para = Load_SysPara();
-	return SlaverDevice_init(para);
 }
 /*
 **函数名： Load_SysPara
@@ -94,17 +90,21 @@ Sys_Para Load_SysPara(void)
 	Back_Para.cg = tmp >> 8;
 	tmp = FLASH_ReadHalfWord(BACK_BASEADDR + 6);
 	Back_Para.agc = tmp;
+	tmp = FLASH_ReadHalfWord(BACK_BASEADDR + 8);
+	Back_Para.bw = tmp;
 	tmp = FLASH_ReadHalfWord(DEVICEADDR_ADDR);
 	Back_Para.addr = tmp;
 	Back_Para.rem = LOCAL;
 	//FLASH_WriteHalfWord(BACK_BASEADDR + 8,0xffff); //读完
-	if(Back_Para.cg > 50)	//给默认初始值
+	if(Back_Para.cg > 50 && Back_Para.att > 50 && Back_Para.cf < 7750.000 && Back_Para.cf > 9000.000
+					&&	Back_Para.bw > 3 && Back_Para.agc > 1)	//给默认初始值
 	{
 		Back_Para.agc = MGC;
 		Back_Para.cg = 50;
 		Back_Para.att = 0;
 		Back_Para.rem = LOCAL;
-		Back_Para.cf = 1698.000;
+		Back_Para.cf = 7750.000;
+		Back_Para.bw = BW_180Mhz;
 		Back_Para.addr = 0;
 	}
 	return Back_Para;
@@ -125,21 +125,12 @@ void Save_SysPara(Sys_Para sPara)
 	u32 int_adcsum = 0;
 	FLASH_Unlock(); 
   FLASH_ErasePage(sectorStartAddress);                           //擦除扇区
-	FLASH_WriteHalfWord(BACK_BASEADDR, ((u32)(sPara.cf*1000) >> 16));
-	FLASH_WriteHalfWord(BACK_BASEADDR + 2,(u16)(sPara.cf*1000));
+	FLASH_WriteHalfWord(BACK_BASEADDR, ((u32)(sPara.cf*1000 + 0.5 ) >> 16));
+	FLASH_WriteHalfWord(BACK_BASEADDR + 2,(u16)(sPara.cf*1000 + 0.5));
 	FLASH_WriteHalfWord(BACK_BASEADDR + 4,((u16)sPara.cg << 8) | sPara.att);	
 	FLASH_WriteHalfWord(BACK_BASEADDR + 6,sPara.agc);
-	
+	FLASH_WriteHalfWord(BACK_BASEADDR + 8,sPara.bw);
 	FLASH_WriteHalfWord(DEVICEADDR_ADDR,sPara.addr);
-	int_adcsum = ((u32)(adc_val1 * 10000 +0.5));
-	FLASH_WriteHalfWord(AGCCALVAL1_ADDR,int_adcsum >> 16);  //存储 AGC1
-	FLASH_WriteHalfWord(AGCCALVAL1_ADDR + 2,int_adcsum); 
-	
-	int_adcsum = ((u32)(adc_val2 * 10000 +0.5));
-	FLASH_WriteHalfWord(AGCCALVAL2_ADDR,int_adcsum >> 16);  //存储 AGC2
-	FLASH_WriteHalfWord(AGCCALVAL2_ADDR + 2,int_adcsum);
-	FLASH_WriteHalfWord(BACK_BASEADDR + 30,0x915a); //写完
-	//int_adcsum = FLASH_ReadHalfWord(BACK_BASEADDR + 30);
 	FLASH_Lock(); 
 }
 /************************END OF FILE**********************/

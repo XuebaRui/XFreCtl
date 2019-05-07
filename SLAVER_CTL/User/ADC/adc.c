@@ -15,10 +15,6 @@ static void ADC1_GPIO_Config(void)
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	
 }
-
-
-
-
 static void BSP_adc_init(void)
 {
 

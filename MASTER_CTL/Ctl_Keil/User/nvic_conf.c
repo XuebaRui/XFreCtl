@@ -134,4 +134,84 @@ void PVD_IRQHandler(void)
 	}
 	//#endif
 }
+
+/*
+**º¯ÊýÃû£º SPI½ÓÊÕ ÖÐ¶Ï
+**²ÎÊý  £º 
+**¹¦ÄÜ  £º FLASH Ð´
+**ÈÕÆÚ	£º 2019-05-07
+**×÷Õß  £º ÍõÈð
+*/
+extern u8 s_ack1;  //½ÓÊÕÖÐ¶ÏÏìÓ¦  ´Ó»ú1ÏìÓ¦±êÖ¾
+extern u8 s_ack2;  //½ÓÊÕÖÐ¶ÏÏìÓ¦  ´Ó»ú2ÏìÓ¦±êÖ¾
+u8 Spi1_RecBuff[6] = {0}; //´Ó»ú1·µ»ØÊý¾
+u8 Spi1_Reclen = 0;
+u8 Spi1_RecFinish = 0;
+void SPI1_IRQHandler(void)
+{
+  u8 tmp = 0;
+	if(SPI_I2S_GetITStatus(SPI1,SPI_I2S_IT_RXNE) != RESET) 
+	{
+		if(Spi1_Reclen <10 && !Spi1_RecFinish)
+		{
+			Spi1_RecBuff[Spi1_Reclen++] = SPI1->DR;
+			if(Spi1_Reclen == 10)
+			{
+				if(Spi1_RecBuff[5] == 0xa5)
+				{
+					Spi1_RecFinish = 1; //´Ó»ú·µ»Ø³É¹¦
+				}
+				else
+				{
+					Spi1_RecFinish = 0;
+					Spi1_Reclen = 0;
+					memset(Spi1_RecBuff,0,sizeof(Spi1_RecBuff));
+				}
+			}
+		}
+		else
+		{
+			Spi1_RecFinish = 0;
+			Spi1_Reclen = 0;
+			memset(Spi1_RecBuff,0,sizeof(Spi1_RecBuff));
+		}
+		s_ack1 = 1; //´Ó»ú·µ»Ø
+		SPI_I2S_ClearITPendingBit(SPI1,SPI_I2S_IT_RXNE);
+	}
+}
+u8 Spi2_Reclen = 0;
+u8 Spi2_RecFinish = 0;
+u8 Spi2_RecBuff[6] = {0};//´Ó»ú2·µ»ØÊý¾Ý
+void SPI2_IRQHandler(void)
+{
+  u8 tmp = 0;
+	if(SPI_I2S_GetITStatus(SPI2,SPI_I2S_IT_RXNE) != RESET) 
+	{
+		if(Spi2_Reclen <10 && !Spi2_RecFinish)
+		{
+			Spi2_RecBuff[Spi2_Reclen++] = SPI1->DR;
+			if(Spi2_Reclen == 10)
+			{
+				if(Spi2_RecBuff[5] == 0xa5)
+				{
+					Spi2_RecFinish = 1; //´Ó»ú·µ»Ø³É¹¦
+				}
+				else
+				{
+					Spi2_RecFinish = 0;
+					Spi2_Reclen = 0;
+					memset(Spi2_RecBuff,0,sizeof(Spi2_RecBuff));
+				}
+			}
+		}
+		else
+		{
+			Spi2_RecFinish = 0;
+			Spi2_Reclen = 0;
+			memset(Spi2_RecBuff,0,sizeof(Spi2_RecBuff));
+		}
+		s_ack2 = 1; //´Ó»ú·µ»Ø
+		SPI_I2S_ClearITPendingBit(SPI2,SPI_I2S_IT_RXNE);
+	}
+}
 /************************END OF FILE**********************/

@@ -34,6 +34,7 @@
 "..\..\output\hard_spi.o"
 "..\..\output\hmc832.o"
 "..\..\output\nfre.o"
+"..\..\output\func.o"
 --library_type=microlib --strict --scatter "..\..\Output\Template.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

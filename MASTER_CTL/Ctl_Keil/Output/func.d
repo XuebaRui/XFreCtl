@@ -27,3 +27,5 @@
 ..\..\output\func.o: ..\..\User\ADC\adc.h
 ..\..\output\func.o: ..\..\User\simple_delay\delay.h
 ..\..\output\func.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+..\..\output\func.o: ..\..\User\SPI\hard_spi.h
+..\..\output\func.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

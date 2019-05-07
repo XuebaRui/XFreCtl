@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>STM32_W5300</TargetName>
+      <TargetName>XFreCtl</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -47,7 +47,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>..\..\Output\</OutputDirectory>
-          <OutputName>Template</OutputName>
+          <OutputName>download</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -661,13 +661,6 @@
         </Group>
         <Group>
           <GroupName>DOC</GroupName>
-          <Files>
-            <File>
-              <FileName>readme.MD</FileName>
-              <FileType>9</FileType>
-              <FilePath>..\..\Doc\readme.MD</FilePath>
-            </File>
-          </Files>
         </Group>
       </Groups>
     </Target>

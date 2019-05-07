@@ -627,6 +627,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\User\N_FRE\NFRE.C</FilePath>
             </File>
+            <File>
+              <FileName>func.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\func\func.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

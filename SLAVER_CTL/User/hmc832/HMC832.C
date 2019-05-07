@@ -148,48 +148,28 @@ void GPIO_init(void)
 
 void HMC832_Init(void)
 {
-//	  // 2520MHZ
-//		HMC832_Write(0x0002,0x01); 
-//		HMC832_Write(0x0001,0x02);  //r = 2  PD = 100M /R  =50M   N = 2520 /50 = 50
-//		HMC832_Write(0x0010,0x05); //输出VCO分频比为1
-//		HMC832_Write(0x4d98,0x05); //
-//		HMC832_Write(0x7d8b,0x05); //
-//		HMC832_Write(0x0000,0x05); //
-//		HMC832_Write(0x200b4a,0x06); //  xiaoshu moshi 
-//		HMC832_Write(0x08cd,0x07); //  
-//		HMC832_Write(0xc1beff,0x08); // 
-//		HMC832_Write(0x1f7efd,0x09); // 
-//		HMC832_Write(0x2006,0x0a); // 
-//		HMC832_Write(0x0081,0x0f); //
-//		HMC832_Write(0x0032,0x03); // 整数部分
-//		HMC832_Write(0x00000,0x04); // 小数部分
-	
+	  // 2520MHZ
 		HMC832_Write(0x0002,0x01); 
-				delay_ms(10);
-		HMC832_Write(0x0002,0x02);  //r = 2  PD = 100M /R  =50M   N = 2520 /50 = 50
-				delay_ms(10);
-		HMC832_Write(0x1628,0x05); //输出VCO分频比为1
-				delay_ms(10);
-		HMC832_Write(0x60a0,0x05); //
-				delay_ms(10);
-		HMC832_Write(0xe090,0x05); //
-				delay_ms(10);
+		HMC832_Write(0x0001,0x02);  //r = 2  PD = 100M /R  =50M   N = 2520 /50 = 50
+		HMC832_Write(0x0010,0x05); //输出VCO分频比为1
+		HMC832_Write(0x4d98,0x05); //
+		HMC832_Write(0x7d8b,0x05); //
 		HMC832_Write(0x0000,0x05); //
-				delay_ms(10);
-		HMC832_Write(0x2003ca,0x06); //  xiaoshu moshi 
-				delay_ms(10);
-		HMC832_Write(0xccd,0x07); //  
-				delay_ms(10);
+		HMC832_Write(0x200b4a,0x06); //  xiaoshu moshi 
+		HMC832_Write(0x08cd,0x07); //  
 		HMC832_Write(0xc1beff,0x08); // 
-				delay_ms(10);
-		HMC832_Write(0x3ffff,0x09); // 
-				delay_ms(10);
+		HMC832_Write(0x1f7efd,0x09); // 
 		HMC832_Write(0x2006,0x0a); // 
-				delay_ms(10);
-		HMC832_Write(0x89,0x0f); //
-				delay_ms(10);
-		HMC832_Write(0x30,0x03); // 整数部分
-				delay_ms(10);
-		//HMC832_Write(0x00000,0x04); // 小数部分
-		delay_ms(10);
+		HMC832_Write(0x0081,0x0f); //
+		HMC832_Write(0x0032,0x03); // 整数部分
+		HMC832_Write(0x00000,0x04); // 小数部分
+}
+void HMC832_FreSet(u32 fre)  
+{
+	u32 frc_reg = 0;
+	u32 int_reg = 0;
+	int_reg = (fre / 50000);
+	frc_reg = 335 * (fre % 50000); //1k *n
+	HMC832_Write(int_reg,0x03); // 整数部分
+	HMC832_Write(frc_reg,0x04); // 小数部分
 }

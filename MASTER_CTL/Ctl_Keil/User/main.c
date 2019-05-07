@@ -20,7 +20,7 @@
 extern u8 Que_Len ;            
 extern u8 **Parse_Que ;        //测试应该更改为数组缓存     
 extern u8 paser(char *s,char *rtn_cmd ,char *rtn_data);
-extern u8 Spi_RecBuff[10];
+extern u8 Spi_RecBuff[7];
 Sys_Para cur_SysPara;
 void SystemClock_Config(void)
 {
@@ -114,36 +114,37 @@ int main(void)
 	#endif
 	ZN200_Init();				 												//以太网初始化
 	IOPort_Init();
-	adc_init();                                 //ADC初始化
 	#if DeBug
 		sprintf(DisBuffer,"IO_Init...");
 		Display_Asc_String('1',20,24,DisBuffer);
 		delay_ms(50);
 	#endif
-	LowPW_Init(); 															//低电量中断 电容不够保持足够的时间
-	#if DeBug
-		sprintf(DisBuffer,"LowPowerDet_Init...");
-		Display_Asc_String('1',20,32,DisBuffer);
-	#endif
-	HMC832A_Init();
-	HMC832B_Init();
-	#if DeBug
-		sprintf(DisBuffer,"FreInit...");
-		Display_Asc_String('1',20,40,DisBuffer);
-	#endif
-	//cur_SysPara = Load_SysPara();               //加载上次关机的参数
-	#if DeBug
-		sprintf(DisBuffer,"Load_SysPara...");
-		Display_Asc_String('1',20,48,DisBuffer);
-	#endif
+//	LowPW_Init(); 															//低电量中断 电容不够保持足够的时间
+//	#if DeBug
+//		sprintf(DisBuffer,"LowPowerDet_Init...");
+//		Display_Asc_String('1',20,32,DisBuffer);
+//	#endif
+
+	cur_SysPara = Load_SysPara();               //加载上次关机的参数
+	while(!SlaverDevice_Ctl(cur_SysPara))              //从机设置
+	{
+		#if DeBug
+			sprintf(DisBuffer,"Load_SysPara.  ");
+			Display_Asc_String('1',20,48,DisBuffer);
+			delay_ms(50);
+			sprintf(DisBuffer,"Load_SysPara.. ");
+			Display_Asc_String('1',20,48,DisBuffer);
+			delay_ms(50);
+			sprintf(DisBuffer,"Load_SysPara...");
+			Display_Asc_String('1',20,48,DisBuffer);
+			delay_ms(50);
+		#endif
+	}
 	IWDG_Configuration();												//看门狗初始化
 	IWDG->KR=0XAAAA; 
 	#if DeBug
 		sprintf(DisBuffer,"OPEN_IWDG...FINISH...");
-		Display_Asc_String('1',20,56,DisBuffer);
-//		Vertical_Scroll(1,1,1000);
-//		sprintf(DisBuffer,"FINISH...");
-//		Display_Asc_String('1',10,72,DisBuffer);		
+		Display_Asc_String('1',20,56,DisBuffer);		
 	#endif
 	Fill_RAM(0x00);
 	delay_ms(50);
@@ -167,26 +168,8 @@ int main(void)
 	Display_Asc_String('1',20,46,DisBuffer);
 	sprintf(DisBuffer,"%s",(cur_SysPara.rem == LOCAL)?"LOCAL ":"REMOTE");
 	Display_Asc_String('1',200,56,DisBuffer);
-	//增益设置 SPI 发送给从机
-	CGA_Set(50-cur_SysPara.cg);
-	CGB_Set(50-cur_SysPara.cg);
-	ATTA_Set(cur_SysPara.att);
-	ATTB_Set(cur_SysPara.att);
-	if(HMC832B_FreSet(cur_SysPara.cf) && HMC832A_FreSet(cur_SysPara.cf)) //设置频率成功
-	{					
-	}
 	Page = Main_Page;	
 	oldPage = Main_Page;
-	//Fill_Block(0xff,15,15,26,26);
-	//Fill_Block(0xff,17,17,26,26);
-	//Fill_Block(0xff,15,19,40,40);
-	//Fill_Block(0xff,15,15,54,54);
-	//Fill_Block(0xff,17,17,54,54);
-	//Fill_Block(0xff,19,19,54,54);
-	//Fill_Block(0xff,21,21,54,54);
-	//Fill_Block(0xff,25,25,54,54);
-	//Fill_Block(0xff,27,27,54,54);
-	//Fill_Block(0xff,29,29,54,54);
   while(1)
 	{
 		if(Page == Main_Page)                           //主界面
@@ -209,7 +192,7 @@ int main(void)
 				Display_Asc_String('1',200,56,DisBuffer);
 				CGA_Set(50-cur_SysPara.cg);
 				CGB_Set(50-cur_SysPara.cg);
-				Save_SysPara(cur_SysPara,AGC_BASIC1,AGC_BASIC2);
+				Save_SysPara(cur_SysPara);
 				oldPage = Page;
 			}
 			if(Que_Len > 0)                								//队列长度大于0 
@@ -401,7 +384,7 @@ int main(void)
 					Display_Asc_String('1',20,46,DisBuffer);
 					sprintf(DisBuffer,"%s",(cur_SysPara.rem == LOCAL)?"LOCAL ":"REMOTE");
 					Display_Asc_String('1',200,56,DisBuffer);
-					Save_SysPara(cur_SysPara,AGC_BASIC1,AGC_BASIC2);
+					Save_SysPara(cur_SysPara);
 				}
 				else
 					Udp_SendStr(">%d/CMD ERR!\n",cur_SysPara.addr); 						//UDP返回非法指令错误
@@ -1017,7 +1000,7 @@ int main(void)
 					if(!Key_Up && !Key_Down && !Key_Left && !Key_Right && !Key_Ok) //判断按键弹起
 					{
 						if(!Key_Up && !Key_Down)
-							Save_SysPara(cur_SysPara,AGC_BASIC1,AGC_BASIC2);
+							Save_SysPara(cur_SysPara);
 						key_flag = 0;
 						key_cont = 0;
 					}
@@ -1090,7 +1073,7 @@ int main(void)
 						key_delay = 0;
 						if(Key_Up)
 						{
-								cur_SysPara.addr = cur_SysPara.addr + 1;
+							cur_SysPara.addr = cur_SysPara.addr + 1;
 							sprintf(DisBuffer,"ADDR: %d  ", cur_SysPara.addr);
 							Display_Asc_String('1',100,25,DisBuffer);	
 						}
@@ -1143,11 +1126,11 @@ int main(void)
 			{
 				Fill_RAM(0x00);
 				delay_ms(50);
-				Fill_RAM(0x00);
-				sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC1);
-				Display_Asc_String('1',80,20,DisBuffer);
-				sprintf(DisBuffer,"AGC_RF2VAL: %.3f  ", AGC_BASIC2);
-				Display_Asc_String('1',80,30,DisBuffer);	
+//				Fill_RAM(0x00);
+//				sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC1);
+//				Display_Asc_String('1',80,20,DisBuffer);
+//				sprintf(DisBuffer,"AGC_RF2VAL: %.3f  ", AGC_BASIC2);
+//				Display_Asc_String('1',80,30,DisBuffer);	
 				oldPage = Page;
 			}
 			if(!key_flag)                                  
@@ -1160,15 +1143,15 @@ int main(void)
 						key_delay = 0;
 						if(Key_Up)
 						{
-							AGC_BASIC1 = Cal_AGCVal(RF_1);
-							sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC1);
-							Display_Asc_String('1',80,20,DisBuffer);
+//							AGC_BASIC1 = Cal_AGCVal(RF_1);
+//							sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC1);
+//							Display_Asc_String('1',80,20,DisBuffer);
 						}
 						else if(Key_Down)
 						{
-							AGC_BASIC2 = Cal_AGCVal(RF_2);
-							sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC2);
-							Display_Asc_String('1',80,30,DisBuffer);	
+//							AGC_BASIC2 = Cal_AGCVal(RF_2);
+//							sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC2);
+//							Display_Asc_String('1',80,30,DisBuffer);	
 						}
 						else if(Key_Ok)
 						{
@@ -1194,22 +1177,7 @@ int main(void)
 			}
 		}
 		else
-			;
-		if(cur_SysPara.agc == AGC) //AGC 模式
-		{
-			cur_AGCVal1 += AGC_Ctl(AGC_BASIC1 ,0.022,RF_1); 
-			if(cur_AGCVal1 < 0)
-				cur_AGCVal1 = 0;
-			if(cur_AGCVal1 > 50)
-				cur_AGCVal1 = 50;
-			CGA_Set(cur_AGCVal1);
-			cur_AGCVal2 += AGC_Ctl(AGC_BASIC2 ,0.022,RF_2);
-			if(cur_AGCVal2 < 0)
-				cur_AGCVal2 = 0;
-			if(cur_AGCVal2 > 50)
-				cur_AGCVal2 = 50;
-			CGB_Set(cur_AGCVal2);
-		}		
+			;		
 		IWDG->KR=0XAAAA;  												      //喂狗
 	}
 }

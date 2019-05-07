@@ -25,5 +25,6 @@
 void GPIO_init(void);
 void HMC832_Write(unsigned long int data, unsigned char addr)	;
 void HMC832_Init(void);
+void HMC832_FreSet(u32 fre);
 								
 #endif
