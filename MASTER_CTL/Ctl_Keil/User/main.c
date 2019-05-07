@@ -12,6 +12,7 @@
 #include "key.h"
 #include "adc.h"
 #include "myflash.h"
+#include "stdint.h"
 #define Tab_CG   0x01
 #define Tab_ATT  0x02
 #define Tab_AGC  0x03

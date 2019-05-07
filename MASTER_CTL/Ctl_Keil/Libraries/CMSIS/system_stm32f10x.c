@@ -236,7 +236,8 @@ void SystemInit (void)
   RCC->CR &= (uint32_t)0xEBFFFFFF;
 
   /* Disable all interrupts and clear pending bits  */
-  RCC->CIR = 0x00FF0000;
+  RCC->CIR = 0x00F
+	F0000;
 
   /* Reset CFGR2 register */
   RCC->CFGR2 = 0x00000000;

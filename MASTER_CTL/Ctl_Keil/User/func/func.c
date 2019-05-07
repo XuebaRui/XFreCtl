@@ -35,7 +35,7 @@ void LowPW_Init(void)
 **日期	： 2019-02-26
 **作者  ： 王瑞
 */
-u8 s_ack1 = 0;  //接收中断响应
+u8 s_ack1 = 0;  //接收中断响应   
 u8 s_ack2 = 0;  //接收中断响应
 u8 SlaverDevice_Ctl(Sys_Para para)
 {
@@ -116,7 +116,8 @@ Sys_Para Load_SysPara(void)
 **日期	： 2019-02-26
 **作者  ： 王瑞
 */
-void Save_SysPara(Sys_Para sPara,double adc_val1,double adc_val2)
+
+void Save_SysPara(Sys_Para sPara)
 {
 	u32 offsetAddress=BACK_BASEADDR-FLASH_BASE;               //相对基地址的偏移
   u32 sectorPosition=offsetAddress/SECTOR_SIZE;             //计算扇区位置
