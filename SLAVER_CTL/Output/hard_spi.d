@@ -2,7 +2,7 @@
 ..\..\output\hard_spi.o: ..\..\User\SPI\hard_spi.h
 ..\..\output\hard_spi.o: ..\..\Libraries\CMSIS\stm32f10x.h
 ..\..\output\hard_spi.o: ..\..\Libraries\CMSIS\core_cm3.h
-..\..\output\hard_spi.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\..\output\hard_spi.o: D:\keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\..\output\hard_spi.o: ..\..\Libraries\CMSIS\system_stm32f10x.h
 ..\..\output\hard_spi.o: ..\..\User\stm32f10x_conf.h
 ..\..\output\hard_spi.o: ..\..\Libraries\FWlib\inc\stm32f10x_adc.h
@@ -16,4 +16,3 @@
 ..\..\output\hard_spi.o: ..\..\Libraries\FWlib\inc\stm32f10x_tim.h
 ..\..\output\hard_spi.o: ..\..\Libraries\FWlib\inc\stm32f10x_usart.h
 ..\..\output\hard_spi.o: ..\..\Libraries\FWlib\inc\misc.h
-..\..\output\hard_spi.o: ..\..\User\STC\stc.h

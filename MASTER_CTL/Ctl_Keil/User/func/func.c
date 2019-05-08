@@ -39,10 +39,11 @@ u8 s_ack1 = 0;  //接收中断响应
 u8 s_ack2 = 0;  //接收中断响应
 u8 SlaverDevice_Ctl(Sys_Para para)
 {
-	u8 s_buff[7] = {0};
+	u8 s_buff[7] = {0},rtn_buff[6] = {0};
 	u8 s_cnt = 0;
 	u8 retry = 0;
 	u32 tmp = 0;
+	u8 i = 0;
 	s_buff[0] = 0x5a; 
 	tmp = (u32)(para.cf * 1000 + 0.5);
 	s_buff[1] = ((tmp << 3)>>16) & 0xff;
@@ -51,22 +52,20 @@ u8 SlaverDevice_Ctl(Sys_Para para)
 	s_buff[4] = (para.cg << 5)|(para.att);
 	s_buff[5] = (para.bw << 6 | para.agc << 5)& 0xff;
 	s_buff[6] = 0xa5; 
-	SlaverDevice1_SendByte(s_buff[0]);
-	SlaverDevice2_SendByte(s_buff[0]);
-	for(s_cnt = 1 ; s_cnt < 10 ; s_cnt++)
+	for(i = 0; i < 7 ;i ++)
 	{
-		SlaverDevice1_SendByte(s_buff[s_cnt]);
-		SlaverDevice2_SendByte(s_buff[s_cnt]);
-		while(!(s_ack1&s_ack2)) //等待从机返回数据中断
-		{
-			retry++;
-			if(retry >= 100)
-				return Fail;   //失败
-		}
-		s_ack1 = 0;
-		s_ack2 = 0;
+		SPI1_SendByte(s_buff[i]);
 	}
-	return Success;  //成功
+	s_buff[0] = 0x5b; 
+	s_buff[6] = 0xb5; 
+	delay_ms(50);
+	delay_ms(50);
+	SPI1_SendByte(s_buff[0]);
+	for(i = 1; i < 7 ;i ++)
+	{
+		rtn_buff[i-1] = SPI1_SendByte(s_buff[i]);
+	}
+c 	return Success;  //成功
 }
 /*
 **函数名： Load_SysPara

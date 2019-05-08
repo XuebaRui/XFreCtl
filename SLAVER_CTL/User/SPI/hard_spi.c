@@ -14,7 +14,7 @@ void Spi1_Init(void) //主模式 全双工8位
 	GPIO_InitTypeDef GPIO_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA , ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA|RCC_APB2Periph_AFIO, ENABLE);
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 
@@ -27,20 +27,22 @@ void Spi1_Init(void) //主模式 全双工8位
 
 	//MISO
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	//MOSI
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-	//CS
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //上啦
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+//	//CS
+//	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU; //上啦
+//	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	/* SPI1 configuration */
 	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;
-	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;
+	SPI_InitStructure.SPI_Mode = SPI_Mode_Slave;
 	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;
 	SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;
 	SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;
@@ -78,10 +80,19 @@ void Spi1_SendByte(u8 byte)
 	}
 	SPI1->DR = byte;
 }
-
+typedef struct 
+{
+	u32  cf;
+	u8 cg;
+	u8 att;
+	u8 bw;
+	u8 agc;
+}Sys_Para; //系统参数
 u8 Spi1_RecBuff[7] = {0}; //主机数据接收
 u8 Spi1_Reclen = 0;
 u8 Spi1_RecFinish = 0;
+u8 rtn_buf[6] = {0};
+u16 cmd_cnt = 20000;
 void SPI1_IRQHandler(void)
 {
 	u8 tmp = 0;
@@ -90,19 +101,23 @@ void SPI1_IRQHandler(void)
 	{
 		if(Spi1_Reclen <7 && !Spi1_RecFinish)
 		{
+			cmd_cnt = 0;
 			Spi1_RecBuff[Spi1_Reclen++] = SPI1->DR;
-			if(Spi1_RecBuff[0] == 0xa5 || Spi1_RecBuff[0] == 0xb5 ) //写或者查询指令
+			if(Spi1_RecBuff[0] == 0x5b ) //查询指令
 			{
-					Spi1_SendByte(0x55);
+					if(Spi1_Reclen < 7)
+						SPI1->DR = rtn_buf[Spi1_Reclen - 1];
 			}
 			if(Spi1_Reclen == 7)
 			{
-				if(Spi1_RecBuff[6] == 0xa5 || Spi1_RecBuff[6] == 0xb5)
+				if(Spi1_RecBuff[6] == 0xa5)
 				{
 					Spi1_RecFinish = 1; //从机返回成功
+					cmd_cnt = 20000;
 				}
 				else
 				{
+					cmd_cnt = 20000; 
 					Spi1_RecFinish = 0;
 					Spi1_Reclen = 0;
 					memset(Spi1_RecBuff,0,sizeof(Spi1_RecBuff));

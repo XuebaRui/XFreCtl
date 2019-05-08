@@ -1,10 +1,10 @@
 ..\..\output\parser.o: ..\..\User\parser.c
-..\..\output\parser.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-..\..\output\parser.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+..\..\output\parser.o: D:\keil5\ARM\ARMCC\Bin\..\include\stdio.h
+..\..\output\parser.o: D:\keil5\ARM\ARMCC\Bin\..\include\string.h
 ..\..\output\parser.o: ..\..\User\mytypedef.h
 ..\..\output\parser.o: ..\..\Libraries\CMSIS\stm32f10x.h
 ..\..\output\parser.o: ..\..\Libraries\CMSIS\core_cm3.h
-..\..\output\parser.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\..\output\parser.o: D:\keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\..\output\parser.o: ..\..\Libraries\CMSIS\system_stm32f10x.h
 ..\..\output\parser.o: ..\..\User\stm32f10x_conf.h
 ..\..\output\parser.o: ..\..\Libraries\FWlib\inc\stm32f10x_adc.h

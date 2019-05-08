@@ -2,7 +2,7 @@
 ..\..\output\myflash.o: ..\..\User\internalflash\myflash.h
 ..\..\output\myflash.o: ..\..\Libraries\CMSIS\stm32f10x.h
 ..\..\output\myflash.o: ..\..\Libraries\CMSIS\core_cm3.h
-..\..\output\myflash.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\..\output\myflash.o: D:\keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\..\output\myflash.o: ..\..\Libraries\CMSIS\system_stm32f10x.h
 ..\..\output\myflash.o: ..\..\User\stm32f10x_conf.h
 ..\..\output\myflash.o: ..\..\Libraries\FWlib\inc\stm32f10x_adc.h

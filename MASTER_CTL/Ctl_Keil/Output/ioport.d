@@ -2,7 +2,7 @@
 ..\..\output\ioport.o: ..\..\User\ioport\ioport.h
 ..\..\output\ioport.o: ..\..\Libraries\CMSIS\stm32f10x.h
 ..\..\output\ioport.o: ..\..\Libraries\CMSIS\core_cm3.h
-..\..\output\ioport.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\..\output\ioport.o: D:\keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\..\output\ioport.o: ..\..\Libraries\CMSIS\system_stm32f10x.h
 ..\..\output\ioport.o: ..\..\User\stm32f10x_conf.h
 ..\..\output\ioport.o: ..\..\Libraries\FWlib\inc\stm32f10x_adc.h

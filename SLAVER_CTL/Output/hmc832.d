@@ -2,7 +2,7 @@
 ..\..\output\hmc832.o: ..\..\User\hmc832\HMC832.h
 ..\..\output\hmc832.o: ..\..\Libraries\CMSIS\stm32f10x.h
 ..\..\output\hmc832.o: ..\..\Libraries\CMSIS\core_cm3.h
-..\..\output\hmc832.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\..\output\hmc832.o: D:\keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ..\..\output\hmc832.o: ..\..\Libraries\CMSIS\system_stm32f10x.h
 ..\..\output\hmc832.o: ..\..\User\stm32f10x_conf.h
 ..\..\output\hmc832.o: ..\..\Libraries\FWlib\inc\stm32f10x_adc.h

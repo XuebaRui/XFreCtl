@@ -10,9 +10,10 @@
 #include "ioport.h"
 #include "bmp.h"
 #include "key.h"
-#include "adc.h"
 #include "myflash.h"
 #include "stdint.h"
+#include "hard_spi.h"
+
 #define Tab_CG   0x01
 #define Tab_ATT  0x02
 #define Tab_AGC  0x03
@@ -46,6 +47,7 @@ void IWDG_Configuration(void) //ns 看门狗
     IWDG_ReloadCounter();
     IWDG_Enable(); 
 }
+volatile u8 x = 0;
 int main(void)
 {
 	u8 i = 0;
@@ -90,6 +92,8 @@ int main(void)
 	Key_IOInit();
   OLED_Init();																//OLED初始化 
 	GBZK_GPIO_Config(); 												//OLED字库IO初始化
+	Spi1_Init();
+	Spi2_Init();
 	#if PowON_Pic
 	Show_Pattern(gImage_AV,20,((92 + 80)/4 - 1),11,52);
 //sprintf(DisBuffer,"Amplifier Electronics");
@@ -113,7 +117,7 @@ int main(void)
 		delay_ms(50);
 	#endif
 	ZN200_Init();				 												//以太网初始化
-	IOPort_Init();
+	//IOPort_Init();
 	#if DeBug
 		sprintf(DisBuffer,"IO_Init...");
 		Display_Asc_String('1',20,24,DisBuffer);
@@ -126,7 +130,7 @@ int main(void)
 //	#endif
 
 	cur_SysPara = Load_SysPara();               //加载上次关机的参数
-	while(!SlaverDevice_Ctl(cur_SysPara))              //从机设置
+	//while(!SlaverDevice_Ctl(cur_SysPara))              //从机设置
 	{
 		#if DeBug
 			sprintf(DisBuffer,"Load_SysPara.  ");
@@ -140,8 +144,8 @@ int main(void)
 			delay_ms(50);
 		#endif
 	}
-	IWDG_Configuration();												//看门狗初始化
-	IWDG->KR=0XAAAA; 
+	//IWDG_Configuration();												//看门狗初始化
+	//IWDG->KR=0XAAAA; 
 	#if DeBug
 		sprintf(DisBuffer,"OPEN_IWDG...FINISH...");
 		Display_Asc_String('1',20,56,DisBuffer);		
@@ -170,6 +174,13 @@ int main(void)
 	Display_Asc_String('1',200,56,DisBuffer);
 	Page = Main_Page;	
 	oldPage = Main_Page;
+	while(1)
+	{
+		delay_s(1);
+		SlaverDevice_Ctl(cur_SysPara);
+		delay_s(1);
+	}
+		/*
   while(1)
 	{
 		if(Page == Main_Page)                           //主界面
@@ -1180,6 +1191,7 @@ int main(void)
 			;		
 		IWDG->KR=0XAAAA;  												      //喂狗
 	}
+	*/
 }
 /************************END OF FILE**********************/
 

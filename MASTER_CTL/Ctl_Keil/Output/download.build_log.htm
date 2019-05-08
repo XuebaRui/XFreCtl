@@ -3,48 +3,53 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Tool Versions:</h2>
-IDE-Version: ¦ÌVision V5.14.2
+IDE-Version: ¦ÌVision V5.14.0.0
 Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: Cortex-M3, APULI, LIC=SDAPC-722CA-T3SMI-TEQ1T-Q96MH-YNG8Y
+License Information: APL APL, APL, LIC=DSNRA-1ZZMC-67MRS-L2WXX-MP313-VYZM3
  
 Tool Versions:
-Toolchain:       MDK-ARM Standard  Version: 5.20
-Toolchain Path:  D:\Keil_v5\ARM\ARMCC\Bin
-C Compiler:      Armcc.exe V5.06 update 2 (build 183)
-Assembler:       Armasm.exe V5.06 update 2 (build 183)
-Linker/Locator:  ArmLink.exe V5.06 update 2 (build 183)
-Library Manager: ArmAr.exe V5.06 update 2 (build 183)
-Hex Converter:   FromElf.exe V5.06 update 2 (build 183)
-CPU DLL:         SARMCM3.DLL V5.20
-Dialog DLL:      DCM.DLL V1.13.7.0
-Target DLL:      Segger\JL2CM3.dll V2.99.20.0
-Dialog DLL:      TCM.DLL V1.14.9.0
+Toolchain:       MDK-ARM Professional  Version: 5.14.0.0
+Toolchain Path:  D:\keil5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.05 update 1 (build 106)
+Assembler:       Armasm.exe V5.05 update 1 (build 106)
+Linker/Locator:  ArmLink.exe V5.05 update 1 (build 106)
+Library Manager: ArmAr.exe V5.05 update 1 (build 106)
+Hex Converter:   FromElf.exe V5.05 update 1 (build 106)
+CPU DLL:         SARMCM3.DLL V5.14.0.0
+Dialog DLL:      DCM.DLL V1.13.1.0
+Target DLL:      Segger\JL2CM3.dll V2.99.13.0
+Dialog DLL:      TCM.DLL V1.14.4.0
  
 <h2>Project:</h2>
-F:\work\code\GITHUB\XFreCtl\MASTER_CTL\Ctl_Keil\Project\RVMDK£¨uv4£©\iSO-STM32.uvprojx
+E:\CODE\XFreCtl\MASTER_CTL\Ctl_Keil\Project\RVMDK£¨uv4£©\iSO-STM32.uvprojx
 Project File Date:  05/07/2019
 
 <h2>Output:</h2>
-*** Using Compiler 'V5.06 update 2 (build 183)', folder: 'D:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'XFreCtl'
+compiling func.c...
+..\..\User\mytypedef.h(28): warning:  #1-D: last line of file ends without a newline
+  /************************END OF FILE**********************/
+..\..\User\func\func.c(42): warning:  #550-D: variable "rtn_buff" was set but never used
+        u8 s_buff[7] = {0},rtn_buff[6] = {0};
+..\..\User\func\func.c(43): warning:  #177-D: variable "s_cnt" was declared but never referenced
+        u8 s_cnt = 0;
+..\..\User\func\func.c(44): warning:  #177-D: variable "retry" was declared but never referenced
+        u8 retry = 0;
+..\..\User\func\func.c(124): warning:  #177-D: variable "int_adcsum" was declared but never referenced
+        u32 int_adcsum = 0;
+..\..\User\func\func.c(135): warning:  #1-D: last line of file ends without a newline
+  /************************END OF FILE**********************/
+..\..\User\func\func.c: 6 warnings, 0 errors
 linking...
-..\..\Output\download.axf: Error: L6218E: Undefined symbol ATTA_Set (referred from main.o).
-..\..\Output\download.axf: Error: L6218E: Undefined symbol ATTB_Set (referred from main.o).
-..\..\Output\download.axf: Error: L6218E: Undefined symbol CGA_Set (referred from main.o).
-..\..\Output\download.axf: Error: L6218E: Undefined symbol CGB_Set (referred from main.o).
-..\..\Output\download.axf: Error: L6218E: Undefined symbol FA_Check (referred from main.o).
-..\..\Output\download.axf: Error: L6218E: Undefined symbol HMC832A_FreSet (referred from main.o).
-..\..\Output\download.axf: Error: L6218E: Undefined symbol HMC832B_FreSet (referred from main.o).
-Not enough information to list image symbols.
-Finished: 1 information, 0 warning and 7 error messages.
-"..\..\Output\download.axf" - 7 Error(s), 0 Warning(s).
+Program Size: Code=23960 RO-data=336 RW-data=68 ZI-data=4332  
+FromELF: creating hex file...
+"..\..\Output\download.axf" - 0 Error(s), 6 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
-  F:\work\code\GITHUB\XFreCtl\MASTER_CTL\Ctl_Keil\Project\RVMDK£¨uv4£©\RTE
-  D:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.2.0\Device\Include
+  E:\CODE\XFreCtl\MASTER_CTL\Ctl_Keil\Project\RVMDK£¨uv4£©\RTE
+  D:\keil5\ARM\PACK\Keil\STM32F1xx_DFP\1.1.0\Device\Include
 
 <h2>Collection of Component Files used:</h2>
-Target not created.
 </pre>
 </body>
 </html>
