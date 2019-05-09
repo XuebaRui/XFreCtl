@@ -46,6 +46,7 @@ u8 SlaverDevice_Ctl(Sys_Para para)
 	u8 i = 0;
 	s_buff[0] = 0x5a; 
 	tmp = (u32)(para.cf * 1000 + 0.5);
+	tmp = tmp - 7750000;
 	s_buff[1] = ((tmp << 3)>>16) & 0xff;
 	s_buff[2] = ((tmp << 3)>>8) & 0xff;
 	s_buff[3] = ((tmp << 3) | (para.cg >> 3))& 0xff;
@@ -59,13 +60,14 @@ u8 SlaverDevice_Ctl(Sys_Para para)
 	s_buff[0] = 0x5b; 
 	s_buff[6] = 0xb5; 
 	delay_ms(50);
-	delay_ms(50);
 	SPI1_SendByte(s_buff[0]);
+	delay_us(2);
 	for(i = 1; i < 7 ;i ++)
 	{
 		rtn_buff[i-1] = SPI1_SendByte(s_buff[i]);
+		delay_us(2);
 	}
-c 	return Success;  //成功
+ 	return Success;  //成功
 }
 /*
 **函数名： Load_SysPara
@@ -95,8 +97,8 @@ Sys_Para Load_SysPara(void)
 	Back_Para.addr = tmp;
 	Back_Para.rem = LOCAL;
 	//FLASH_WriteHalfWord(BACK_BASEADDR + 8,0xffff); //读完
-	if(Back_Para.cg > 50 && Back_Para.att > 50 && Back_Para.cf < 7750.000 && Back_Para.cf > 9000.000
-					&&	Back_Para.bw > 3 && Back_Para.agc > 1)	//给默认初始值
+	if(Back_Para.cg > 50 || Back_Para.att > 50 || Back_Para.cf < 7750.000 || Back_Para.cf > 9000.000
+					||	Back_Para.bw > 3 || Back_Para.agc > 1)	//给默认初始值
 	{
 		Back_Para.agc = MGC;
 		Back_Para.cg = 50;

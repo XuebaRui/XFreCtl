@@ -18,6 +18,7 @@
 #define Tab_ATT  0x02
 #define Tab_AGC  0x03
 #define Tab_CF   0x04 
+#define Tab_BW   0x05
 extern u8 Que_Len ;            
 extern u8 **Parse_Que ;        //测试应该更改为数组缓存     
 extern u8 paser(char *s,char *rtn_cmd ,char *rtn_data);
@@ -57,6 +58,7 @@ int main(void)
 	u8 agc_count1 = 0;
 	u8 agc_count2 = 0;
 	u8 cur_agcvval = 0;
+	signed char BW_Sel = 0 , old_BW_Sel = 0;        //CG设置
 	signed char CG_Sel = 0 , old_CG_Sel = 0;        //CG设置
 	signed char ATT_Sel = 0 , old_ATT_Sel = 0;      //ATT设置
 	signed char AGC_Sel = 0;  
@@ -154,33 +156,27 @@ int main(void)
 	delay_ms(50);
 	
 	sprintf(DisBuffer,"CG : %01d%01d dB",cur_SysPara.cg / 10 , cur_SysPara.cg%10);
-	Display_Asc_String('1',20,4,DisBuffer);
+	Display_Asc_String('1',20,3,DisBuffer);
 	sprintf(DisBuffer,"ATT: %01d%01d dB",cur_SysPara.att / 10 , cur_SysPara.att % 10);
-	Display_Asc_String('1',20,18,DisBuffer);
-	if(cur_SysPara.bw == BW_180Mhz)	
-		sprintf(DisBuffer,"BW: %s","180MHZ");
-	else if(cur_SysPara.bw == BW_250Mhz)
-		sprintf(DisBuffer,"BW: %s","250MHZ");
-	else 
-		sprintf(DisBuffer,"BW: %s","500MHZ");
-	Display_Asc_String('1',20,32,DisBuffer);
+	Display_Asc_String('1',20,16,DisBuffer);
 	sprintf(DisBuffer,"AGC: %s",(cur_SysPara.agc == AGC)?"AGC":"MGC" );
-	Display_Asc_String('1',20,32,DisBuffer);
+	Display_Asc_String('1',20,29,DisBuffer);
 	sprintf(DisBuffer,"CF : %01d%01d%01d%01d.%01d%01d%01d MHz",(u32)((cur_SysPara.cf+0.0005) * 10000)/10000000,(u32)((cur_SysPara.cf+0.0005) * 10000)%10000000/1000000,
 																															(u32)((cur_SysPara.cf+0.0005) * 10000)%1000000/100000,(u32)((cur_SysPara.cf+0.0005) * 10000)%100000/10000			
 																															,(u32)((cur_SysPara.cf+0.0005) * 10000)%10000/1000 ,(u32)((cur_SysPara.cf+0.0005) * 10000)%1000/100,(u32)((cur_SysPara.cf+0.0005) * 10000)%100/10);
-	Display_Asc_String('1',20,46,DisBuffer);
+	Display_Asc_String('1',20,42,DisBuffer);
+	if(cur_SysPara.bw == BW_180Mhz)	
+		sprintf(DisBuffer,"BW : %s","180MHz");
+	else if(cur_SysPara.bw == BW_240Mhz)
+		sprintf(DisBuffer,"BW : %s","240MHz");
+	else 
+		sprintf(DisBuffer,"BW : %s","500MHz");
+	Display_Asc_String('1',20,55,DisBuffer);
 	sprintf(DisBuffer,"%s",(cur_SysPara.rem == LOCAL)?"LOCAL ":"REMOTE");
 	Display_Asc_String('1',200,56,DisBuffer);
 	Page = Main_Page;	
 	oldPage = Main_Page;
-	while(1)
-	{
-		delay_s(1);
-		SlaverDevice_Ctl(cur_SysPara);
-		delay_s(1);
-	}
-		/*
+	SlaverDevice_Ctl(cur_SysPara);//初始化从机
   while(1)
 	{
 		if(Page == Main_Page)                           //主界面
@@ -189,20 +185,34 @@ int main(void)
 			{
 				Fill_RAM(0x00);
 				delay_ms(50);
-				sprintf(DisBuffer,"CG : %01d%01d dB",cur_SysPara.cg / 10 , cur_SysPara.cg%10);
-				Display_Asc_String('1',20,4,DisBuffer);
+				if(cur_SysPara.agc == MGC)
+				{
+					sprintf(DisBuffer,"CG : %01d%01d dB",cur_SysPara.cg / 10 , cur_SysPara.cg%10);
+					Display_Asc_String('1',20,3,DisBuffer);
+				}
+				else
+				{
+					sprintf(DisBuffer,"CG : xx dB");
+					Display_Asc_String('1',20,3,DisBuffer);
+				}
 				sprintf(DisBuffer,"ATT: %01d%01d dB",cur_SysPara.att / 10 , cur_SysPara.att % 10);
-				Display_Asc_String('1',20,18,DisBuffer);
+				Display_Asc_String('1',20,16,DisBuffer);
 				sprintf(DisBuffer,"AGC: %s",(cur_SysPara.agc == AGC)?"AGC":"MGC" );
-				Display_Asc_String('1',20,32,DisBuffer);
+				Display_Asc_String('1',20,29,DisBuffer);
 				sprintf(DisBuffer,"CF : %01d%01d%01d%01d.%01d%01d%01d MHz",(u32)((cur_SysPara.cf+0.0005) * 10000)/10000000,(u32)((cur_SysPara.cf+0.0005) * 10000)%10000000/1000000,
 																																		(u32)((cur_SysPara.cf+0.0005) * 10000)%1000000/100000,(u32)((cur_SysPara.cf+0.0005) * 10000)%100000/10000			
 																																		,(u32)((cur_SysPara.cf+0.0005) * 10000)%10000/1000 ,(u32)((cur_SysPara.cf+0.0005) * 10000)%1000/100,(u32)((cur_SysPara.cf+0.0005) * 10000)%100/10);
-				Display_Asc_String('1',20,46,DisBuffer);
+				Display_Asc_String('1',20,42,DisBuffer);
+				if(cur_SysPara.bw == BW_180Mhz)	
+					sprintf(DisBuffer,"BW : %s","180MHz");
+				else if(cur_SysPara.bw == BW_240Mhz)
+					sprintf(DisBuffer,"BW : %s","240MHz");
+				else 
+					sprintf(DisBuffer,"BW : %s","500MHz");
+				Display_Asc_String('1',20,55,DisBuffer);
 				sprintf(DisBuffer,"%s",(cur_SysPara.rem == LOCAL)?"LOCAL ":"REMOTE");
-				Display_Asc_String('1',200,56,DisBuffer);
-				CGA_Set(50-cur_SysPara.cg);
-				CGB_Set(50-cur_SysPara.cg);
+				Display_Asc_String('1',200,55,DisBuffer);
+				SlaverDevice_Ctl(cur_SysPara);
 				Save_SysPara(cur_SysPara);
 				oldPage = Page;
 			}
@@ -237,14 +247,7 @@ int main(void)
 									if(tmp_double >= 1698.000 && tmp_double <= 1710.000)
 									{
 										cur_SysPara.cf = tmp_double;
-										if(HMC832B_FreSet(cur_SysPara.cf) && HMC832A_FreSet(cur_SysPara.cf)) //设置频率成功
-										{
-											Udp_SendStr(">%d/CF_%07.3f\n",cur_SysPara.addr,cur_SysPara.cf);		
-										}
-										else
-										{
-											//报错失锁
-										}
+										Udp_SendStr(">%d/CF_%07.3f\n",cur_SysPara.addr,cur_SysPara.cf);		
 									}
 									else
 										Udp_SendStr(">%d/PARA ERR!\n",cur_SysPara.addr); //返回参数错误
@@ -274,8 +277,6 @@ int main(void)
 									if(tmp_int <= 50) //增益控制范围0-50dB
 									{
 										cur_SysPara.cg = tmp_int;
-										CGA_Set(50-cur_SysPara.cg); //设置A通道增益
-										CGB_Set(50-cur_SysPara.cg); //设置B通道增益
 										Udp_SendStr(">%d/CG_%02d\n",cur_SysPara.addr,cur_SysPara.cg);
 									}
 									else
@@ -300,8 +301,6 @@ int main(void)
 								if(tmp_int <= 30)   //末级衰减 范围 0 - 30dB
 								{
 									cur_SysPara.att = tmp_int;
-									ATTA_Set(cur_SysPara.att);
-									ATTB_Set(cur_SysPara.att);
 									Udp_SendStr(">%d/ATT_%02d\n",cur_SysPara.addr,cur_SysPara.att);
 								}
 								else
@@ -313,16 +312,42 @@ int main(void)
 					}
 					else if(strcmp(cmd,"BW") == 0)								//远程设置/查询带宽
 					{
-	//					if(strcmp(cmd_data,"180")
-	//						cur_SysPara.bw =  BW_180Mhz;
-	//					else if(strcmp(cmd_data,"250")
-	//						cur_SysPara.bw =  BW_250Mhz;
-	//					else if(strcmp(cmd_data,"500")
-	//						cur_SysPara.bw =  BW_500Mhz;
-	//					else if(strcmp(cmd_data,"?")
-	//					;
-	//					else
-	//						;
+						if(strcmp(cmd_data,"?\r") == 0)   //查询
+						{  
+							if(cur_SysPara.bw =  BW_180Mhz)
+								Udp_SendStr(">%d/BW_%s\n",cur_SysPara.addr,"180MHz");
+							else if(cur_SysPara.bw =  BW_240Mhz)
+								Udp_SendStr(">%d/BW_%s\n",cur_SysPara.addr,"240MHz");
+							else if(cur_SysPara.bw =  BW_500Mhz)
+								Udp_SendStr(">%d/BW_%s\n",cur_SysPara.addr,"500MHz");
+							else
+								;
+						}	
+						else
+						{
+							if(cur_SysPara.rem == REMOTE)
+							{
+								if(strcmp(cmd_data,"180MHz"))
+								{
+									cur_SysPara.bw =  BW_180Mhz;
+									Udp_SendStr(">%d/BW_%s\n",cur_SysPara.addr,"180MHz");
+								}
+								else if(strcmp(cmd_data,"240MHz"))
+								{
+									cur_SysPara.bw =  BW_240Mhz;
+									Udp_SendStr(">%d/BW_%s\n",cur_SysPara.addr,"240MHz");
+								}
+								else if(strcmp(cmd_data,"500MHz"))
+								{
+									cur_SysPara.bw =  BW_500Mhz;
+									Udp_SendStr(">%d/BW_%s\n",cur_SysPara.addr,"500MHz");
+								}
+								else
+									Udp_SendStr(">%d/PARA ERR!\n",cur_SysPara.addr); //返回参数错误
+							}
+							else
+								Udp_SendStr(">%d/REM ERR!\n",cur_SysPara.addr); 				//返回非法远程操作
+						}	
 					}
 					else if(strcmp(cmd,"AGC") == 0)							//远程设置AGC/MGC工作模式
 					{
@@ -337,8 +362,6 @@ int main(void)
 							{
 								cur_SysPara.agc = MGC;
 								cur_SysPara.cg = 50;
-								CGA_Set(50 - cur_SysPara.cg);
-								CGB_Set(50 - cur_SysPara.cg);
 								Udp_SendStr(">%d/AGC_0\n",cur_SysPara.addr);
 							}
 							else
@@ -350,7 +373,7 @@ int main(void)
 					else if(strcmp(cmd,"FA") == 0)								//远程查询本振工作状态
 					{
 						if(strcmp(cmd_data,"?\r") == 0)
-							Udp_SendStr(">%d/FA_%02d\n",cur_SysPara.addr,FA_Check());
+							;//Udp_SendStr(">%d/FA_%02d\n",cur_SysPara.addr,FA_Check());
 						else
 							Udp_SendStr(">%d/PARA ERR!\n",cur_SysPara.addr); //返回参数错误
 					}
@@ -360,11 +383,11 @@ int main(void)
 						{
 							if(cur_SysPara.rem == REMOTE)
 							{
-								Udp_SendStr(">%d/REM_ON,CF_%08.3f,CG_%02d,ATT_%02d,AGC_%01d,FA_%02d\n",cur_SysPara.addr,cur_SysPara.cf,cur_SysPara.cg,cur_SysPara.att,cur_SysPara.agc,FA_Check());
+								;//Udp_SendStr(">%d/REM_ON,CF_%08.3f,CG_%02d,ATT_%02d,AGC_%01d,FA_%02d\n",cur_SysPara.addr,cur_SysPara.cf,cur_SysPara.cg,cur_SysPara.att,cur_SysPara.agc,FA_Check());
 							}
 							else
 							{
-								Udp_SendStr(">%d/REM_OFF,CF_%08.3f,CG_%02d,ATT_%02d,AGC_%01d,FA_%02d\n",cur_SysPara.addr,cur_SysPara.cf,cur_SysPara.cg,cur_SysPara.att,cur_SysPara.agc,FA_Check()); 
+								;//Udp_SendStr(">%d/REM_OFF,CF_%08.3f,CG_%02d,ATT_%02d,AGC_%01d,FA_%02d\n",cur_SysPara.addr,cur_SysPara.cf,cur_SysPara.cg,cur_SysPara.att,cur_SysPara.agc,FA_Check()); 
 							}
 						}
 						else
@@ -374,11 +397,11 @@ int main(void)
 					{
 						Udp_SendStr(">%d/CMD ERR!\n",cur_SysPara.addr); 			//UDP返回非法指令错误
 					}
-					
+					SlaverDevice_Ctl(cur_SysPara);  // 设置
 					if(cur_SysPara.agc == MGC)
 					{
 						sprintf(DisBuffer,"CG : %01d%01d dB",cur_SysPara.cg / 10 , cur_SysPara.cg%10);
-						Display_Asc_String('1',20,4,DisBuffer);
+						Display_Asc_String('1',20,3,DisBuffer);
 					}
 					else
 					{
@@ -386,13 +409,21 @@ int main(void)
 						Display_Asc_String('1',20,4,DisBuffer);
 					}
 					sprintf(DisBuffer,"ATT: %01d%01d dB",cur_SysPara.att / 10 , cur_SysPara.att % 10);
-					Display_Asc_String('1',20,18,DisBuffer);
+					Display_Asc_String('1',20,16,DisBuffer);
 					sprintf(DisBuffer,"AGC: %s",(cur_SysPara.agc == AGC)?"AGC":"MGC" );
-					Display_Asc_String('1',20,32,DisBuffer);
+					Display_Asc_String('1',20,29,DisBuffer);
 					sprintf(DisBuffer,"CF : %01d%01d%01d%01d.%01d%01d%01d MHz",(u32)((cur_SysPara.cf+0.0005) * 10000)/10000000,(u32)((cur_SysPara.cf+0.0005) * 10000)%10000000/1000000,
 																																			(u32)((cur_SysPara.cf+0.0005) * 10000)%1000000/100000,(u32)((cur_SysPara.cf+0.0005) * 10000)%100000/10000			
 																																			,(u32)((cur_SysPara.cf+0.0005) * 10000)%10000/1000 ,(u32)((cur_SysPara.cf+0.0005) * 10000)%1000/100,(u32)((cur_SysPara.cf+0.0005) * 10000)%100/10);
-					Display_Asc_String('1',20,46,DisBuffer);
+					Display_Asc_String('1',20,42,DisBuffer);
+					if(cur_SysPara.bw == BW_180Mhz)	
+						sprintf(DisBuffer,"BW : %s","180MHz");
+					else if(cur_SysPara.bw == BW_240Mhz)
+						sprintf(DisBuffer,"BW : %s","240MHz");
+					else 
+						sprintf(DisBuffer,"BW : %s","500MHz");
+					Display_Asc_String('1',20,55,DisBuffer);
+					
 					sprintf(DisBuffer,"%s",(cur_SysPara.rem == LOCAL)?"LOCAL ":"REMOTE");
 					Display_Asc_String('1',200,56,DisBuffer);
 					Save_SysPara(cur_SysPara);
@@ -416,26 +447,27 @@ int main(void)
 								switch(Tab)
 								{
 									case Tab_CG:
-										switch(CG_Sel)
+										if(cur_SysPara.agc == MGC)
 										{
-											case 1: 
-												if(cur_SysPara.cg <= 40)
-												{
-													cur_SysPara.cg = cur_SysPara.cg + 10;
-												}
-												break;
-											case 2: 				
-												if(cur_SysPara.cg < 50)
-												{
-													cur_SysPara.cg = cur_SysPara.cg + 1;
-												}						
-												break;
-											default: break;
+											switch(CG_Sel)
+											{
+												case 1: 
+													if(cur_SysPara.cg <= 40)
+													{
+														cur_SysPara.cg = cur_SysPara.cg + 10;
+													}
+													break;
+												case 2: 				
+													if(cur_SysPara.cg < 50)
+													{
+														cur_SysPara.cg = cur_SysPara.cg + 1;
+													}						
+													break;
+												default: break;
+											}
+											sprintf(DisBuffer,"CG : %01d%01d dB",cur_SysPara.cg / 10 , cur_SysPara.cg%10);
+											Display_Asc_String('1',20,3,DisBuffer);	
 										}
-										CGA_Set(50-cur_SysPara.cg);
-										CGB_Set(50-cur_SysPara.cg);
-										sprintf(DisBuffer,"CG : %01d%01d dB",cur_SysPara.cg / 10 , cur_SysPara.cg%10);
-										Display_Asc_String('1',20,4,DisBuffer);	
 										break;
 									case Tab_ATT:
 										switch(ATT_Sel)
@@ -454,10 +486,8 @@ int main(void)
 												break;
 											default: break;
 										}
-										ATTA_Set(cur_SysPara.att);
-										ATTB_Set(cur_SysPara.att);
 										sprintf(DisBuffer,"ATT: %01d%01d dB",cur_SysPara.att / 10 , cur_SysPara.att % 10);
-										Display_Asc_String('1',20,18,DisBuffer);
+										Display_Asc_String('1',20,16,DisBuffer);
 										break;
 									case 3:
 										if(AGC_Sel)
@@ -466,18 +496,16 @@ int main(void)
 											if(cur_SysPara.agc == MGC)
 											{
 												cur_SysPara.cg = 50;
-												CGA_Set(50 - cur_SysPara.cg);
-												CGB_Set(50 - cur_SysPara.cg);
 												sprintf(DisBuffer,"CG : %01d%01d dB",cur_SysPara.cg / 10 , cur_SysPara.cg%10);
-												Display_Asc_String('1',20,4,DisBuffer);	
+												Display_Asc_String('1',20,3,DisBuffer);	
 											}
 											else
 											{
 													sprintf(DisBuffer,"CG : xx dB");
-													Display_Asc_String('1',20,4,DisBuffer);		
+													Display_Asc_String('1',20,3,DisBuffer);		
 											}
 											sprintf(DisBuffer,"AGC: %s",(cur_SysPara.agc == AGC)?"AGC":"MGC" );
-											Display_Asc_String('1',20,32,DisBuffer);
+											Display_Asc_String('1',20,29,DisBuffer);
 										}
 										break;
 									case 4:
@@ -512,51 +540,67 @@ int main(void)
 												break;
 											default: break;
 										}
-										if(cur_SysPara.cf >= 1710.000 )
+										if(cur_SysPara.cf >= 9000.000 )
 										{
-											cur_SysPara.cf = 1710.000;
+											cur_SysPara.cf = 9000.000;
 										}
-										if(cur_SysPara.cf <= 1698.000 )
+										if(cur_SysPara.cf <= 7750.000 )
 										{
-											cur_SysPara.cf = 1698.000;
+											cur_SysPara.cf = 7750.000;
 										}
 										
-										if(HMC832B_FreSet(cur_SysPara.cf) && HMC832A_FreSet(cur_SysPara.cf)) //设置频率成功
-										{
-											sprintf(DisBuffer,"CF : %01d%01d%01d%01d.%01d%01d%01d MHz",(int)((cur_SysPara.cf+0.0005) * 10000)/10000000,(int)((cur_SysPara.cf+0.0005) * 10000)%10000000/1000000,
+										sprintf(DisBuffer,"CF : %01d%01d%01d%01d.%01d%01d%01d MHz",(int)((cur_SysPara.cf+0.0005) * 10000)/10000000,(int)((cur_SysPara.cf+0.0005) * 10000)%10000000/1000000,
 																																		(int)((cur_SysPara.cf+0.0005) * 10000)%1000000/100000,(int)((cur_SysPara.cf+0.0005) * 10000)%100000/10000			
 																																		,(int)((cur_SysPara.cf+0.0005) * 10000)%10000/1000 ,(int)((cur_SysPara.cf+0.0005) * 10000)%1000/100,(int)((cur_SysPara.cf+0.0005) * 10000)%100/10);
-											Display_Asc_String('1',20,46,DisBuffer);									
-										}
+										Display_Asc_String('1',20,42,DisBuffer);									
+										
 										break;
+								case 5:
+										if(BW_Sel)
+										{
+											if(cur_SysPara.bw == 2)
+												cur_SysPara.bw = 0;
+											else
+												cur_SysPara.bw = cur_SysPara.bw + 1;
+											if(cur_SysPara.bw == BW_180Mhz)	
+												sprintf(DisBuffer,"BW : %s","180MHz");
+											else if(cur_SysPara.bw == BW_240Mhz)
+												sprintf(DisBuffer,"BW : %s","240MHz");
+											else 
+												sprintf(DisBuffer,"BW : %s","500MHz");
+											Display_Asc_String('1',20,55,DisBuffer);
+											break;
+										}
 									default: break;
 								}
+								SlaverDevice_Ctl(cur_SysPara);//初始化从机
 							}
 							else if(Key_Down)
 							{
 								switch(Tab)
 								{
 									case Tab_CG:
-										switch(CG_Sel)
+										if(cur_SysPara.agc == MGC)
 										{
-											case 1: 
-												if(cur_SysPara.cg >= 10)
-												{
-													cur_SysPara.cg = cur_SysPara.cg - 10;
-												}
-												break;
-											case 2: 				
-												if(cur_SysPara.cg > 0)
-												{
-													cur_SysPara.cg = cur_SysPara.cg - 1;
-												}						
-												break;
-											default: break;
+											switch(CG_Sel)
+											{
+												case 1: 
+													if(cur_SysPara.cg >= 10)
+													{
+														cur_SysPara.cg = cur_SysPara.cg - 10;
+													}
+													break;
+												case 2: 				
+													if(cur_SysPara.cg > 0)
+													{
+														cur_SysPara.cg = cur_SysPara.cg - 1;
+													}						
+													break;
+												default: break;
+											}
+											sprintf(DisBuffer,"CG : %01d%01d dB",cur_SysPara.cg / 10 , cur_SysPara.cg%10);
+											Display_Asc_String('1',20,3,DisBuffer);	
 										}
-										CGA_Set(50 - cur_SysPara.cg);
-										CGB_Set(50 - cur_SysPara.cg);
-										sprintf(DisBuffer,"CG : %01d%01d dB",cur_SysPara.cg / 10 , cur_SysPara.cg%10);
-										Display_Asc_String('1',20,4,DisBuffer);	
 										break;
 									case Tab_ATT:
 										switch(ATT_Sel)
@@ -575,10 +619,8 @@ int main(void)
 												break;
 											default: break;
 										}
-										ATTA_Set(cur_SysPara.att);
-										ATTB_Set(cur_SysPara.att);
 										sprintf(DisBuffer,"ATT: %01d%01d dB",cur_SysPara.att / 10 , cur_SysPara.att % 10);
-										Display_Asc_String('1',20,18,DisBuffer);
+										Display_Asc_String('1',20,16,DisBuffer);
 										break;
 									case 3:
 										if(AGC_Sel)
@@ -587,18 +629,16 @@ int main(void)
 											if(cur_SysPara.agc == MGC)
 											{
 												cur_SysPara.cg = 50;
-												CGA_Set(50 - cur_SysPara.cg);
-												CGB_Set(50 - cur_SysPara.cg);
 												sprintf(DisBuffer,"CG : %01d%01d dB",cur_SysPara.cg / 10 , cur_SysPara.cg%10);
-												Display_Asc_String('1',20,4,DisBuffer);	
+												Display_Asc_String('1',20,3,DisBuffer);	
 											}
 											else
 											{
 													sprintf(DisBuffer,"CG : xx dB");
-													Display_Asc_String('1',20,4,DisBuffer);		
+													Display_Asc_String('1',20,3,DisBuffer);		
 											}
 											sprintf(DisBuffer,"AGC: %s",(cur_SysPara.agc == AGC)?"AGC":"MGC" );
-											Display_Asc_String('1',20,32,DisBuffer);
+											Display_Asc_String('1',20,29,DisBuffer);
 										}
 										break;
 									case 4:
@@ -632,25 +672,39 @@ int main(void)
 												break;
 											default: break;
 										}
-										if(cur_SysPara.cf >= 1710.000 )
+										if(cur_SysPara.cf >= 9000.000 )
 										{
-											cur_SysPara.cf = 1710.000;
+											cur_SysPara.cf = 9000.000;
 										}
-										if(cur_SysPara.cf <= 1698.000 )
+										if(cur_SysPara.cf <= 7750.000 )
 										{
-											cur_SysPara.cf = 1698.000;
+											cur_SysPara.cf = 7750.000;
 										}
-										if(HMC832B_FreSet(cur_SysPara.cf) && HMC832A_FreSet(cur_SysPara.cf)) //设置频率成功
-										{
-											sprintf(DisBuffer,"CF : %01d%01d%01d%01d.%01d%01d%01d MHz",(int)((cur_SysPara.cf+0.0005) * 10000)/10000000,(int)((cur_SysPara.cf+0.0005) * 10000)%10000000/1000000,
-																																		(int)((cur_SysPara.cf+0.0005) * 10000)%1000000/100000,(int)((cur_SysPara.cf+0.0005) * 10000)%100000/10000			
-																																		,(int)((cur_SysPara.cf+0.0005) * 10000)%10000/1000 ,(int)((cur_SysPara.cf+0.0005) * 10000)%1000/100,(int)((cur_SysPara.cf+0.0005) * 10000)%100/10);
-											Display_Asc_String('1',20,46,DisBuffer);									
-										}
+							
+										sprintf(DisBuffer,"CF : %01d%01d%01d%01d.%01d%01d%01d MHz",(int)((cur_SysPara.cf+0.0005) * 10000)/10000000,(int)((cur_SysPara.cf+0.0005) * 10000)%10000000/1000000,
+																																	(int)((cur_SysPara.cf+0.0005) * 10000)%1000000/100000,(int)((cur_SysPara.cf+0.0005) * 10000)%100000/10000			
+																																	,(int)((cur_SysPara.cf+0.0005) * 10000)%10000/1000 ,(int)((cur_SysPara.cf+0.0005) * 10000)%1000/100,(int)((cur_SysPara.cf+0.0005) * 10000)%100/10);
+										Display_Asc_String('1',20,42,DisBuffer);									
 										break;
+									case 5:
+										if(BW_Sel)
+										{
+											if(cur_SysPara.bw == 0)
+												cur_SysPara.bw = 2;
+											else
+												cur_SysPara.bw = cur_SysPara.bw - 1;
+											if(cur_SysPara.bw == BW_180Mhz)	
+												sprintf(DisBuffer,"BW : %s","180MHz");
+											else if(cur_SysPara.bw == BW_240Mhz)
+												sprintf(DisBuffer,"BW : %s","240MHz");
+											else 
+												sprintf(DisBuffer,"BW : %s","500MHz");
+											Display_Asc_String('1',20,55,DisBuffer);
+											break;
+										}
 									default: break;
-								}
-								
+								}				
+								SlaverDevice_Ctl(cur_SysPara);//初始化从机
 							}
 							else if(Key_Left)
 							{
@@ -660,66 +714,66 @@ int main(void)
 										CG_Sel--;
 										if(CG_Sel <= 0)
 										{
-											Fill_Block(0x00,15,15,12,12);
-											Fill_Block(0x00,17,17,12,12);
+											Fill_Block(0x00,15,15,11,11);
+											Fill_Block(0x00,17,17,11,11);
 											CG_Sel = 3;
 										}
 										else if(CG_Sel == 1)
 										{
-											Fill_Block(0x00,17,17,12,12); //下划线
-											Fill_Block(0xff,15,15,12,12);
+											Fill_Block(0x00,17,17,11,11); //下划线
+											Fill_Block(0xff,15,15,11,11);
 										}
 										else if(CG_Sel == 2)
 										{
-											Fill_Block(0x00,15,15,12,12);
-											Fill_Block(0xff,17,17,12,12);
+											Fill_Block(0x00,15,15,11,11);
+											Fill_Block(0xff,17,17,11,11);
 										}	
 										else if(CG_Sel == 3)
 										{
-											Fill_Block(0x00,15,15,12,12);
-											Fill_Block(0x00,17,17,12,12);
+											Fill_Block(0x00,15,15,11,11);
+											Fill_Block(0x00,17,17,11,11);
 										}
 										else
 										{
-											Fill_Block(0x00,15,15,12,12);
-											Fill_Block(0x00,17,17,12,12);
+											Fill_Block(0x00,15,15,11,11);
+											Fill_Block(0x00,17,17,11,11);
 										}
 										break;
 									case Tab_ATT:
 										ATT_Sel--;
 										if(ATT_Sel <= 0)
 										{
-											Fill_Block(0x00,15,15,26,26);
-											Fill_Block(0x00,17,17,26,26);
+											Fill_Block(0x00,15,15,24,24);
+											Fill_Block(0x00,17,17,24,24);
 											ATT_Sel = 3;
 										}
 										else if(ATT_Sel == 1)
 										{
-											Fill_Block(0x00,17,17,26,26); //下划线
-											Fill_Block(0xff,15,15,26,26);
+											Fill_Block(0x00,17,17,24,24); //下划线
+											Fill_Block(0xff,15,15,24,24);
 										}
 										else if(ATT_Sel == 2)
 										{
-											Fill_Block(0x00,15,15,26,26);
-											Fill_Block(0xff,17,17,26,26);
+											Fill_Block(0x00,15,15,24,24);
+											Fill_Block(0xff,17,17,24,24);
 										}	
 										else if(ATT_Sel == 3)
 										{
-											Fill_Block(0x00,15,15,26,26);
-											Fill_Block(0x00,17,17,26,26);
+											Fill_Block(0x00,15,15,24,24);
+											Fill_Block(0x00,17,17,24,24);
 										}
 										else
 										{
-											Fill_Block(0x00,15,15,26,26);
-											Fill_Block(0x00,17,17,26,26);
+											Fill_Block(0x00,15,15,24,24);
+											Fill_Block(0x00,17,17,24,24);
 										}
 										break;
 									case 3:
 										AGC_Sel = !AGC_Sel;
 										if(AGC_Sel)
-											Fill_Block(0xff,15,19,40,40);
+											Fill_Block(0xff,15,19,37,37);
 										else
-											Fill_Block(0x00,15,19,40,40);
+											Fill_Block(0x00,15,19,37,37);
 										break;
 									case 4:
 										if(CF_Sel == 0)
@@ -728,87 +782,94 @@ int main(void)
 										switch(CF_Sel)
 										{
 											case 0:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 1:
-												Fill_Block(0xff,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0xff,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 2:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0xff,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0xff,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 3:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0xff,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0xff,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 4:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0xff,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0xff,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 5:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0xff,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0xff,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 6:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0xff,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0xff,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 7:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0xff,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0xff,29,29,50,50);
 												break;
 											default: 
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 											break;
 										}
+										break;
+									case 5:
+										BW_Sel = !BW_Sel;
+										if(BW_Sel)
+											Fill_Block(0xff,15,26,63,63);
+										else
+											Fill_Block(0x00,15,26,63,63);
 										break;
 									default: break;
 								}
@@ -821,56 +882,56 @@ int main(void)
 										CG_Sel++;
 										if(CG_Sel == 1)
 										{
-											Fill_Block(0x00,17,17,12,12); //清除上一条下划线
-											Fill_Block(0xff,15,15,12,12);
+											Fill_Block(0x00,17,17,11,11); //清除上一条下划线
+											Fill_Block(0xff,15,15,11,11);
 										}
 										else if(CG_Sel == 2)
 										{
-											Fill_Block(0x00,15,15,12,12);
-											Fill_Block(0xff,17,17,12,12);
+											Fill_Block(0x00,15,15,11,11);
+											Fill_Block(0xff,17,17,11,11);
 										}	
 										else if(CG_Sel >= 3)
 										{
-											Fill_Block(0x00,15,15,12,12);
-											Fill_Block(0x00,17,17,12,12);
+											Fill_Block(0x00,15,15,11,11);
+											Fill_Block(0x00,17,17,11,11);
 											CG_Sel = 0;
 										}
 										else
 										{
-											Fill_Block(0x00,15,15,12,12);
-											Fill_Block(0x00,17,17,12,12);
+											Fill_Block(0x00,15,15,11,11);
+											Fill_Block(0x00,17,17,11,11);
 										}
 										break;
 									case Tab_ATT:
 										ATT_Sel++;
 										if(ATT_Sel == 1)
 										{
-											Fill_Block(0x00,17,17,26,26); //清除上一条下划线
-											Fill_Block(0xff,15,15,26,26);
+											Fill_Block(0x00,17,17,24,24); //清除上一条下划线
+											Fill_Block(0xff,15,15,24,24);
 										}
 										else if(ATT_Sel == 2)
 										{
-											Fill_Block(0x00,15,15,26,26);
-											Fill_Block(0xff,17,17,26,26);
+											Fill_Block(0x00,15,15,24,24);
+											Fill_Block(0xff,17,17,24,24);
 										}	
 										else if(ATT_Sel >= 3)
 										{
-											Fill_Block(0x00,15,15,26,26);
-											Fill_Block(0x00,17,17,26,26);
+											Fill_Block(0x00,15,15,24,24);
+											Fill_Block(0x00,17,17,24,24);
 											ATT_Sel = 0;
 										}
 										else
 										{
-											Fill_Block(0x00,15,15,26,26);
-											Fill_Block(0x00,17,17,26,26);
+											Fill_Block(0x00,15,15,24,24);
+											Fill_Block(0x00,17,17,24,24);
 										}
 										break;
 									case 3:
 										AGC_Sel = !AGC_Sel;
 										if(AGC_Sel)
-											Fill_Block(0xff,15,19,40,40);
+											Fill_Block(0xff,15,19,37,37);
 										else
-											Fill_Block(0x00,15,19,40,40);
+											Fill_Block(0x00,15,19,37,37);
 										break;
 									case 4:
 										CF_Sel ++;
@@ -879,88 +940,95 @@ int main(void)
 										switch(CF_Sel)
 										{
 											case 0:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 1:
-												Fill_Block(0xff,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0xff,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 2:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0xff,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0xff,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 3:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0xff,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0xff,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 4:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0xff,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0xff,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 5:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0xff,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0xff,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 6:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0xff,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0xff,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 												break;
 											case 7:
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0xff,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0xff,29,29,50,50);
 												break;
 											default: 
-												Fill_Block(0x0,15,15,54,54);
-												Fill_Block(0x0,17,17,54,54);
-												Fill_Block(0x0,19,19,54,54);
-												Fill_Block(0x0,21,21,54,54);
-												Fill_Block(0x0,25,25,54,54);
-												Fill_Block(0x0,27,27,54,54);
-												Fill_Block(0x0,29,29,54,54);
+												Fill_Block(0x0,15,15,50,50);
+												Fill_Block(0x0,17,17,50,50);
+												Fill_Block(0x0,19,19,50,50);
+												Fill_Block(0x0,21,21,50,50);
+												Fill_Block(0x0,25,25,50,50);
+												Fill_Block(0x0,27,27,50,50);
+												Fill_Block(0x0,29,29,50,50);
 											break;
 										}
 
+										break;
+									case 5:
+										BW_Sel = !BW_Sel;
+										if(BW_Sel)
+											Fill_Block(0xff,15,26,63,63);
+										else
+											Fill_Block(0x00,15,26,63,63);
 										break;
 									default: break;
 								}
@@ -970,27 +1038,28 @@ int main(void)
 								if(Page == Main_Page)
 								{
 									Tab++;
-									Fill_Block(0x00,15,15,12,12); //清下划线
-									Fill_Block(0x00,17,17,12,12);
-									Fill_Block(0x00,15,15,26,26);
-									Fill_Block(0x00,17,17,26,26);
-									Fill_Block(0x00,15,19,40,40);					
-									Fill_Block(0x00,15,15,54,54);
-									Fill_Block(0x00,17,17,54,54);
-									Fill_Block(0x00,19,19,54,54);
-									Fill_Block(0x00,21,21,54,54);
-									Fill_Block(0x00,25,25,54,54);
-									Fill_Block(0x00,27,27,54,54);
-									Fill_Block(0x00,29,29,54,54);
+									Fill_Block(0x00,15,15,11,11); //清下划线
+									Fill_Block(0x00,17,17,11,11);
+									Fill_Block(0x00,15,15,24,24);
+									Fill_Block(0x00,17,17,24,24);
+									Fill_Block(0x00,15,19,37,37);					
+									Fill_Block(0x00,15,15,50,50);
+									Fill_Block(0x00,17,17,50,50);
+									Fill_Block(0x00,19,19,50,50);
+									Fill_Block(0x00,21,21,50,50);
+									Fill_Block(0x00,25,25,50,50);
+									Fill_Block(0x00,27,27,50,50);
+									Fill_Block(0x00,29,29,50,50);
+									Fill_Block(0x00,15,26,63,63);
 									if(Tab > 0 && Tab != old_Tab)
 									{
 										if(Tab > 1)
-											Display_Asc_String('1',15,((Tab - 1) * 14) - 10," ");	
-										if(Tab < 5)
-											Display_Asc_String('1' , 15 , (Tab*14) - 10 , "-");	
+											Display_Asc_String('1',15,((Tab - 1) * 13) - 10," ");	
+										if(Tab < 6)
+											Display_Asc_String('1' , 15 , (Tab*13) - 10 , "-");	
 										old_Tab = Tab;
 									}
-									if(Tab == 5)
+									if(Tab == 6)
 									{
 										Tab = 0;
 									}
@@ -1011,7 +1080,10 @@ int main(void)
 					if(!Key_Up && !Key_Down && !Key_Left && !Key_Right && !Key_Ok) //判断按键弹起
 					{
 						if(!Key_Up && !Key_Down)
+						{
+
 							Save_SysPara(cur_SysPara);
+						}
 						key_flag = 0;
 						key_cont = 0;
 					}
@@ -1062,136 +1134,135 @@ int main(void)
 				}
 			}
 		}
-		else if(Page == Addr_Page)											//地址设置 界面  长按右键 AGC 校准
-		{
-			if(Page != oldPage)                           //从其他界面跳转到main 需要更新界面
-			{
-				Fill_RAM(0x00);
-				delay_ms(50);
-				Fill_RAM(0x00);
-				sprintf(DisBuffer,"ADDR: %d  ", cur_SysPara.addr);
-				Display_Asc_String('1',100,25,DisBuffer);	
-				oldPage = Page;
-				
-			}
-			if(!key_flag)                                   //按键 显示
-			{
-				if(Key_Up || Key_Down || Key_Left || Key_Right || Key_Ok)
-				{
-					key_delay++;
-					if((Key_Up || Key_Down || Key_Left || Key_Right || Key_Ok) && (key_delay > 200))
-					{
-						key_delay = 0;
-						if(Key_Up)
-						{
-							cur_SysPara.addr = cur_SysPara.addr + 1;
-							sprintf(DisBuffer,"ADDR: %d  ", cur_SysPara.addr);
-							Display_Asc_String('1',100,25,DisBuffer);	
-						}
-						else if(Key_Down)
-						{
-							if(cur_SysPara.addr == 0)
-								cur_SysPara.addr = 0;
-							else
-								cur_SysPara.addr = cur_SysPara.addr - 1;
-							sprintf(DisBuffer,"ADDR: %d  ", cur_SysPara.addr);
-							Display_Asc_String('1',100,25,DisBuffer);	
-						}
-						else if(Key_Ok)
-						{
-							Page = Main_Page;
-						}
-						else
-							;	
-						key_flag = 1;
-					}
-				}
-				else
-				{
-					key_delay = 0;
-				}
-			}
-			else
-			{
-				if(!Key_Up && !Key_Down && !Key_Left && !Key_Right && !Key_Ok) //判断按键弹起  右键长按 AGC校准模式
-				{
-					key_flag = 0;
-					key_cont = 0;
-				}
-				else																											//判断长按
-				{
-					if(Key_Right)
-						key_cont++;
-					else
-						key_cont = 0;
-					if(key_cont > 500000)
-					{
-							Page = Agccal_Page;   
-					}
-				}
-			}
-		}
-		else if(Page == Agccal_Page)
-		{
-			if(Page != oldPage)                           //从其他界面跳转到main 需要更新界面  上键 校准A    下键校准B
-			{
-				Fill_RAM(0x00);
-				delay_ms(50);
+//		else if(Page == Addr_Page)											//地址设置 界面  长按右键 AGC 校准
+//		{
+//			if(Page != oldPage)                           //从其他界面跳转到main 需要更新界面
+//			{
 //				Fill_RAM(0x00);
-//				sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC1);
-//				Display_Asc_String('1',80,20,DisBuffer);
-//				sprintf(DisBuffer,"AGC_RF2VAL: %.3f  ", AGC_BASIC2);
-//				Display_Asc_String('1',80,30,DisBuffer);	
-				oldPage = Page;
-			}
-			if(!key_flag)                                  
-			{
-				if(Key_Up || Key_Down || Key_Left || Key_Right || Key_Ok)
-				{
-					key_delay++;
-					if((Key_Up || Key_Down || Key_Left || Key_Right || Key_Ok) && (key_delay > 200))
-					{
-						key_delay = 0;
-						if(Key_Up)
-						{
-//							AGC_BASIC1 = Cal_AGCVal(RF_1);
-//							sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC1);
-//							Display_Asc_String('1',80,20,DisBuffer);
-						}
-						else if(Key_Down)
-						{
-//							AGC_BASIC2 = Cal_AGCVal(RF_2);
-//							sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC2);
-//							Display_Asc_String('1',80,30,DisBuffer);	
-						}
-						else if(Key_Ok)
-						{
-							Page = Main_Page;
-						}
-						else
-							;	
-						key_flag = 1;
-					}
-				}
-				else
-				{
-					key_delay = 0;
-				}
-			}
-			else
-			{
-				if(!Key_Up && !Key_Down && !Key_Left && !Key_Right && !Key_Ok) //判断按键弹起  右键长按 AGC校准模式
-				{
-					key_flag = 0;
-					key_cont = 0;
-				}
-			}
-		}
-		else
-			;		
+//				delay_ms(50);
+//				Fill_RAM(0x00);
+//				sprintf(DisBuffer,"ADDR: %d  ", cur_SysPara.addr);
+//				Display_Asc_String('1',100,25,DisBuffer);	
+//				oldPage = Page;
+//				
+//			}
+//			if(!key_flag)                                   //按键 显示
+//			{
+//				if(Key_Up || Key_Down || Key_Left || Key_Right || Key_Ok)
+//				{
+//					key_delay++;
+//					if((Key_Up || Key_Down || Key_Left || Key_Right || Key_Ok) && (key_delay > 200))
+//					{
+//						key_delay = 0;
+//						if(Key_Up)
+//						{
+//							cur_SysPara.addr = cur_SysPara.addr + 1;
+//							sprintf(DisBuffer,"ADDR: %d  ", cur_SysPara.addr);
+//							Display_Asc_String('1',100,25,DisBuffer);	
+//						}
+//						else if(Key_Down)
+//						{
+//							if(cur_SysPara.addr == 0)
+//								cur_SysPara.addr = 0;
+//							else
+//								cur_SysPara.addr = cur_SysPara.addr - 1;
+//							sprintf(DisBuffer,"ADDR: %d  ", cur_SysPara.addr);
+//							Display_Asc_String('1',100,25,DisBuffer);	
+//						}
+//						else if(Key_Ok)
+//						{
+//							Page = Main_Page;
+//						}
+//						else
+//							;	
+//						key_flag = 1;
+//					}
+//				}
+//				else
+//				{
+//					key_delay = 0;
+//				}
+//			}
+//			else
+//			{
+//				if(!Key_Up && !Key_Down && !Key_Left && !Key_Right && !Key_Ok) //判断按键弹起  右键长按 AGC校准模式
+//				{
+//					key_flag = 0;
+//					key_cont = 0;
+//				}
+//				else																											//判断长按
+//				{
+//					if(Key_Right)
+//						key_cont++;
+//					else
+//						key_cont = 0;
+//					if(key_cont > 500000)
+//					{
+//							Page = Agccal_Page;   
+//					}
+//				}
+//			}
+//		}
+//		else if(Page == Agccal_Page)
+//		{
+//			if(Page != oldPage)                           //从其他界面跳转到main 需要更新界面  上键 校准A    下键校准B
+//			{
+//				Fill_RAM(0x00);
+//				delay_ms(50);
+////				Fill_RAM(0x00);
+////				sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC1);
+////				Display_Asc_String('1',80,20,DisBuffer);
+////				sprintf(DisBuffer,"AGC_RF2VAL: %.3f  ", AGC_BASIC2);
+////				Display_Asc_String('1',80,29,DisBuffer);	
+//				oldPage = Page;
+//			}
+//			if(!key_flag)                                  
+//			{
+//				if(Key_Up || Key_Down || Key_Left || Key_Right || Key_Ok)
+//				{
+//					key_delay++;
+//					if((Key_Up || Key_Down || Key_Left || Key_Right || Key_Ok) && (key_delay > 200))
+//					{
+//						key_delay = 0;
+//						if(Key_Up)
+//						{
+////							AGC_BASIC1 = Cal_AGCVal(RF_1);
+////							sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC1);
+////							Display_Asc_String('1',80,20,DisBuffer);
+//						}
+//						else if(Key_Down)
+//						{
+////							AGC_BASIC2 = Cal_AGCVal(RF_2);
+////							sprintf(DisBuffer,"AGC_RF1VAL: %.3f  ", AGC_BASIC2);
+////							Display_Asc_String('1',80,29,DisBuffer);	
+//						}
+//						else if(Key_Ok)
+//						{
+//							Page = Main_Page;
+//						}
+//						else
+//							;	
+//						key_flag = 1;
+//					}
+//				}
+//				else
+//				{
+//					key_delay = 0;
+//				}
+//			}
+//			else
+//			{
+//				if(!Key_Up && !Key_Down && !Key_Left && !Key_Right && !Key_Ok) //判断按键弹起  右键长按 AGC校准模式
+//				{
+//					key_flag = 0;
+//					key_cont = 0;
+//				}
+//			}
+//		}
+//		else
+//			;		
 		IWDG->KR=0XAAAA;  												      //喂狗
-	}
-	*/
+	} 
 }
 /************************END OF FILE**********************/
 

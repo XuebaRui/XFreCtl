@@ -92,35 +92,32 @@ u8 Spi1_RecBuff[7] = {0}; //主机数据接收
 u8 Spi1_Reclen = 0;
 u8 Spi1_RecFinish = 0;
 u8 rtn_buf[6] = {0};
-u16 cmd_cnt = 20000;
+u16 cmd_cnt = 40001;
 void SPI1_IRQHandler(void)
 {
 	u8 tmp = 0;
 	u8 retry = 0;
 	if(SPI_I2S_GetITStatus(SPI1,SPI_I2S_IT_RXNE) != RESET)
 	{
-		if(Spi1_Reclen <7 && !Spi1_RecFinish)
+		if(Spi1_Reclen < 7 && !Spi1_RecFinish)
 		{
 			cmd_cnt = 0;
 			Spi1_RecBuff[Spi1_Reclen++] = SPI1->DR;
 			if(Spi1_RecBuff[0] == 0x5b ) //查询指令
 			{
-					if(Spi1_Reclen < 7)
+					if(Spi1_Reclen < 7)    
 						SPI1->DR = rtn_buf[Spi1_Reclen - 1];
+					else
+					{
+						SPI1->DR = 0 ;
+					}
 			}
 			if(Spi1_Reclen == 7)
 			{
-				if(Spi1_RecBuff[6] == 0xa5)
+				if(Spi1_RecBuff[6] == 0xa5 || Spi1_RecBuff[6] == 0xb5 )
 				{
 					Spi1_RecFinish = 1; //从机返回成功
-					cmd_cnt = 20000;
-				}
-				else
-				{
-					cmd_cnt = 20000; 
-					Spi1_RecFinish = 0;
-					Spi1_Reclen = 0;
-					memset(Spi1_RecBuff,0,sizeof(Spi1_RecBuff));
+					cmd_cnt = 40001;
 				}
 			}
 		}

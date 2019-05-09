@@ -27,7 +27,6 @@
 "..\..\output\stm32f10x_wwdg.o"
 "..\..\output\main.o"
 "..\..\output\stm32f10x_it.o"
-"..\..\output\uart.o"
 "..\..\output\delay.o"
 "..\..\output\stc.o"
 "..\..\output\adc.o"

@@ -19,7 +19,7 @@ typedef struct
 #define OFF 						0
 #define ON  						1
 #define BW_180Mhz				1
-#define BW_250Mhz				2
+#define BW_240Mhz				2
 #define BW_500Mhz				3
 #define AGC							1
 #define MGC							0
