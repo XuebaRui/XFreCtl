@@ -265,12 +265,12 @@ Image Symbol Table
     .text                                    0x08001e9c   Section        0  delay.o(.text)
     .text                                    0x08001f58   Section        0  hard_spi.o(.text)
     .text                                    0x08002100   Section        0  hmc832.o(.text)
-    .text                                    0x080022dc   Section        0  nfre.o(.text)
-    .text                                    0x08002358   Section        0  func.o(.text)
-    .text                                    0x08002784   Section       36  init.o(.text)
-    i.__scatterload_copy                     0x080027a8   Section       14  handlers.o(i.__scatterload_copy)
-    i.__scatterload_null                     0x080027b6   Section        2  handlers.o(i.__scatterload_null)
-    i.__scatterload_zeroinit                 0x080027b8   Section       14  handlers.o(i.__scatterload_zeroinit)
+    .text                                    0x080022e4   Section        0  nfre.o(.text)
+    .text                                    0x08002360   Section        0  func.o(.text)
+    .text                                    0x0800278c   Section       36  init.o(.text)
+    i.__scatterload_copy                     0x080027b0   Section       14  handlers.o(i.__scatterload_copy)
+    i.__scatterload_null                     0x080027be   Section        2  handlers.o(i.__scatterload_null)
+    i.__scatterload_zeroinit                 0x080027c0   Section       14  handlers.o(i.__scatterload_zeroinit)
     .data                                    0x20000000   Section       20  system_stm32f10x.o(.data)
     .data                                    0x20000014   Section       20  stm32f10x_rcc.o(.data)
     APBAHBPrescTable                         0x20000014   Data          16  stm32f10x_rcc.o(.data)
@@ -538,20 +538,20 @@ Image Symbol Table
     HMC832_Write                             0x08002101   Thumb Code   186  hmc832.o(.text)
     GPIO_init                                0x080021bb   Thumb Code    88  hmc832.o(.text)
     HMC832_Init                              0x08002213   Thumb Code   128  hmc832.o(.text)
-    HMC832_FreSet                            0x08002293   Thumb Code    58  hmc832.o(.text)
-    NFRE_Init                                0x080022dd   Thumb Code   112  nfre.o(.text)
-    IO_Init                                  0x08002359   Thumb Code   144  func.o(.text)
-    Fre_Ctl                                  0x080023e9   Thumb Code   404  func.o(.text)
-    ATT_Ctl                                  0x0800257d   Thumb Code   158  func.o(.text)
-    CG_Ctl                                   0x0800261b   Thumb Code   198  func.o(.text)
-    BW_Ctl                                   0x080026e1   Thumb Code   164  func.o(.text)
-    __scatterload                            0x08002785   Thumb Code    28  init.o(.text)
-    __scatterload_rt2                        0x08002785   Thumb Code     0  init.o(.text)
-    __scatterload_copy                       0x080027a9   Thumb Code    14  handlers.o(i.__scatterload_copy)
-    __scatterload_null                       0x080027b7   Thumb Code     2  handlers.o(i.__scatterload_null)
-    __scatterload_zeroinit                   0x080027b9   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
-    Region$$Table$$Base                      0x080027c8   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x080027e8   Number         0  anon$$obj.o(Region$$Table)
+    HMC832_FreSet                            0x08002293   Thumb Code    64  hmc832.o(.text)
+    NFRE_Init                                0x080022e5   Thumb Code   112  nfre.o(.text)
+    IO_Init                                  0x08002361   Thumb Code   144  func.o(.text)
+    Fre_Ctl                                  0x080023f1   Thumb Code   404  func.o(.text)
+    ATT_Ctl                                  0x08002585   Thumb Code   158  func.o(.text)
+    CG_Ctl                                   0x08002623   Thumb Code   198  func.o(.text)
+    BW_Ctl                                   0x080026e9   Thumb Code   164  func.o(.text)
+    __scatterload                            0x0800278d   Thumb Code    28  init.o(.text)
+    __scatterload_rt2                        0x0800278d   Thumb Code     0  init.o(.text)
+    __scatterload_copy                       0x080027b1   Thumb Code    14  handlers.o(i.__scatterload_copy)
+    __scatterload_null                       0x080027bf   Thumb Code     2  handlers.o(i.__scatterload_null)
+    __scatterload_zeroinit                   0x080027c1   Thumb Code    14  handlers.o(i.__scatterload_zeroinit)
+    Region$$Table$$Base                      0x080027d0   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x080027f0   Number         0  anon$$obj.o(Region$$Table)
     SystemCoreClock                          0x20000000   Data           4  system_stm32f10x.o(.data)
     AHBPrescTable                            0x20000004   Data          16  system_stm32f10x.o(.data)
     Spi1_RecBuff                             0x20000028   Data           7  hard_spi.o(.data)
@@ -569,9 +569,9 @@ Memory Map of the image
 
   Image Entry point : 0x080000ed
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00002824, Max: 0x00010000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000282c, Max: 0x00010000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Base: 0x08000000, Size: 0x000027e8, Max: 0x00010000, ABSOLUTE)
+    Execution Region ER_IROM1 (Base: 0x08000000, Size: 0x000027f0, Max: 0x00010000, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -599,15 +599,15 @@ Memory Map of the image
     0x08001e9a   0x00000002   PAD
     0x08001e9c   0x000000bc   Code   RO          466    .text               delay.o
     0x08001f58   0x000001a8   Code   RO          499    .text               hard_spi.o
-    0x08002100   0x000001dc   Code   RO          514    .text               hmc832.o
-    0x080022dc   0x0000007c   Code   RO          529    .text               nfre.o
-    0x08002358   0x0000042c   Code   RO          541    .text               func.o
-    0x08002784   0x00000024   Code   RO          628    .text               mc_w.l(init.o)
-    0x080027a8   0x0000000e   Code   RO          632    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x080027b6   0x00000002   Code   RO          633    i.__scatterload_null  mc_w.l(handlers.o)
-    0x080027b8   0x0000000e   Code   RO          634    i.__scatterload_zeroinit  mc_w.l(handlers.o)
-    0x080027c6   0x00000002   PAD
-    0x080027c8   0x00000020   Data   RO          630    Region$$Table       anon$$obj.o
+    0x08002100   0x000001e4   Code   RO          514    .text               hmc832.o
+    0x080022e4   0x0000007c   Code   RO          529    .text               nfre.o
+    0x08002360   0x0000042c   Code   RO          541    .text               func.o
+    0x0800278c   0x00000024   Code   RO          628    .text               mc_w.l(init.o)
+    0x080027b0   0x0000000e   Code   RO          632    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x080027be   0x00000002   Code   RO          633    i.__scatterload_null  mc_w.l(handlers.o)
+    0x080027c0   0x0000000e   Code   RO          634    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x080027ce   0x00000002   PAD
+    0x080027d0   0x00000020   Data   RO          630    Region$$Table       anon$$obj.o
 
 
     Execution Region RW_IRAM1 (Base: 0x20000000, Size: 0x00000440, Max: 0x00005000, ABSOLUTE)
@@ -632,7 +632,7 @@ Image component sizes
        188          4          0          0          0       1006   delay.o
       1068         44          0          0          0       1584   func.o
        424         30          0         18          0       1980   hard_spi.o
-       476         16          0          0          0       1235   hmc832.o
+       484         18          0          0          0       1239   hmc832.o
        540         34          0          0          0       1904   main.o
        220         22          0          0          0       1793   misc.o
        124         12          0          0          0        508   nfre.o
@@ -646,7 +646,7 @@ Image component sizes
        508         24          0         20          0     249683   system_stm32f10x.o
 
     ----------------------------------------------------------------------
-      9860        376        268         60       1028     310575   Object Totals
+      9868        378        268         60       1028     310579   Object Totals
          0          0         32          0          0          0   (incl. Generated)
          4          0          0          2          4          0   (incl. Padding)
 
@@ -685,15 +685,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-      9948        392        268         60       1028     309651   Grand Totals
-      9948        392        268         60       1028     309651   ELF Image Totals
-      9948        392        268         60          0          0   ROM Totals
+      9956        394        268         60       1028     309655   Grand Totals
+      9956        394        268         60       1028     309655   ELF Image Totals
+      9956        394        268         60          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                10216 (   9.98kB)
+    Total RO  Size (Code + RO Data)                10224 (   9.98kB)
     Total RW  Size (RW Data + ZI Data)              1088 (   1.06kB)
-    Total ROM Size (Code + RO Data + RW Data)      10276 (  10.04kB)
+    Total ROM Size (Code + RO Data + RW Data)      10284 (  10.04kB)
 
 ==============================================================================
 

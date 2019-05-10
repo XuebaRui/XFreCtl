@@ -162,7 +162,7 @@ void HMC832_Init(void)
 		HMC832_Write(0x1f7efd,0x09); // 
 		HMC832_Write(0x2006,0x0a); // 
 		HMC832_Write(0x0089,0x0f); //
-		HMC832_Write(0x0032,0x03); // 整数部分
+		HMC832_Write(46,0x03); // 整数部分
 		HMC832_Write(0x00000,0x04); // 小数部分
 	
 //	HMC832B_Write(0x0001,0x01); 
@@ -184,7 +184,8 @@ void HMC832_FreSet(u32 fre)
 {
 	u32 frc_reg = 0;
 	u32 int_reg = 0;
-	int_reg = 50 + (fre / 50000);
+	fre = fre + 20000;
+	int_reg = 46 + (fre / 50000);
 	frc_reg = 335 * (fre % 50000); //1k *n
 	HMC832_Write(int_reg,0x03); // 整数部分
 	HMC832_Write(frc_reg,0x04); // 小数部分
