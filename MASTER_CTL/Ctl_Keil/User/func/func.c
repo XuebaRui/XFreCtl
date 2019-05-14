@@ -56,6 +56,7 @@ u8 SlaverDevice_Ctl(Sys_Para para)
 	for(i = 0; i < 7 ;i ++)
 	{
 		SPI1_SendByte(s_buff[i]);
+		SPI2_SendByte(s_buff[i]);
 	}
 	s_buff[0] = 0x5b; 
 	s_buff[6] = 0xb5; 

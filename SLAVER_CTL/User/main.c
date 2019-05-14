@@ -41,15 +41,16 @@ int main(void)
 	memset(&cur_para,0,sizeof(cur_para));
 	memset(&old_para,0,sizeof(old_para));
 	TIM4_Init();    //延时初始化
+	delay_s(1);
+	IO_Init();      // 控制IO初始化
 	HMC832_Init();  //初始化
 	NFRE_Init();    //4.7G
-	IO_Init();      // 控制IO初始化
 	Spi1_Init();    //从机SPI 初始化
 	//while(!Spi1_RecFinish); //等待主机一次初始化
 	IWDG_Configuration();  //开看门狗
 	while(1)
 	{
-		if(Spi1_RecFinish)
+		if( Spi1_RecFinish)
 		{
 			if(Spi1_RecBuff[0] == 0x5a && Spi1_RecBuff[6] == 0xa5)
 			{
@@ -71,7 +72,7 @@ int main(void)
 				}			
 				if(cur_para.cg != old_para.cg || pow_on == 0)
 				{
-					CG_Ctl(50 - cur_para.cg);
+					CG_Ctl(50-cur_para.cg);
 					old_para.cg = cur_para.cg;
 				}	
 				if(cur_para.att != old_para.att || pow_on == 0)

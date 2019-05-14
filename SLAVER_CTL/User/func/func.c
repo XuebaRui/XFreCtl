@@ -68,7 +68,7 @@ void Fre_Ctl(u32 fre)
 	}
 	else if (fre <= 8800000)
 	{
-		N3(1);N2(1);N1(0);N0(10);S1(0);S0(0);
+		N3(1);N2(1);N1(0);N0(0);S1(0);S0(0);
 		HMC832_FreSet(8800000 - fre);
 	}
 	else if (fre <= 9000000)
@@ -88,12 +88,12 @@ void ATT_Ctl(u8 stc)
 void CG_Ctl(u8 stc)
 {
 	A0_5dB(0);
-	A1dB((stc & 0x01) ? 0 : 1);
-	A2dB((stc & 0x02) ? 0 : 1);
-	A4dB((stc & 0x04) ? 0 : 1);
-	A8dB((stc & 0x08) ? 0 : 1);
-	A16dB((stc & 0x10) ? 0 : 1);
-	A32dB((stc & 0x20) ? 0 : 1);
+	A1dB((stc & 0x01) ? 1 : 0);
+	A2dB((stc & 0x02) ? 1 : 0);
+	A4dB((stc & 0x04) ? 1 : 0);
+	A8dB((stc & 0x08) ? 1 : 0);
+	A16dB((stc & 0x10) ? 1 : 0);
+	A32dB((stc & 0x20) ? 0: 1);
 }
 void BW_Ctl(u8 bw) // 0  1  2 
 {
@@ -102,21 +102,21 @@ void BW_Ctl(u8 bw) // 0  1  2
 		U1_A(0);
 		U1_B(0);
 		U2_A(0);
-		U2_B(0);
+		U2_B(01);
 	}
-	else if(bw == 1)// 240mhz
+	else if(bw == 2)// 240mhz
 	{
 		U1_A(1);
 		U1_B(0);
 		U2_A(1);
 		U2_B(0);
 	}
-	else if(bw == 2)// 500mhz
+	else if(bw == 1)// 500mhz
 	{
 		U1_A(0);
 		U1_B(1);
 		U2_A(0);
-		U2_B(1);
+		U2_B(0 );
 	}
 	else
 		;

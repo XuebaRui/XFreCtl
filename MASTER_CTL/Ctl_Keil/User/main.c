@@ -176,6 +176,7 @@ int main(void)
 	Display_Asc_String('1',200,56,DisBuffer);
 	Page = Main_Page;	
 	oldPage = Main_Page;
+	delay_s(2);
 	SlaverDevice_Ctl(cur_SysPara);//初始化从机
   while(1)
 	{

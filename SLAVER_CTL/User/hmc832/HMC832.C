@@ -161,7 +161,7 @@ void HMC832_Init(void)
 		HMC832_Write(0xc1beff,0x08); // 
 		HMC832_Write(0x1f7efd,0x09); // 
 		HMC832_Write(0x2006,0x0a); // 
-		HMC832_Write(0x0089,0x0f); //
+		HMC832_Write(0x0081,0x0f); //
 		HMC832_Write(46,0x03); // 整数部分
 		HMC832_Write(0x00000,0x04); // 小数部分
 	
